@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/search_swipe_refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="44dp"
+        android:clipToPadding="false"
+        android:padding="0dp"
+        android:paddingBottom="40dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#eee"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            tools:listitem="@layout/card_search" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/before_search_layout"
+        app:layout_constraintTop_toTopOf="@id/search_swipe_refresh_layout"
+        app:layout_constraintBottom_toBottomOf="@id/search_swipe_refresh_layout"
+        android:visibility="visible"
+        android:background="#eee"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/search_view_search_area"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/search_swipe_refresh_layout"
+        android:background="@color/pixiv_blue"
+        >
+        <ImageButton
+            android:id="@+id/button_search_sift"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/search_view_search_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_margin="15dp"
+            android:background="@drawable/icon_sift_inactive"
+            android:backgroundTint="@color/white"
+            />
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search_view_search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="55dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/round_search_view"
+            app:layout_constraintBottom_toBottomOf ="parent"
+            app:layout_constraintCircleRadius="10dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:submitBackground="@color/transparent"
+            />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_bar_search_loadmore"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="46dp"
+        android:indeterminateTint="@color/pixiv_blue_variant_light"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/search_swipe_refresh_layout"
+        app:layout_constraintStart_toEndOf="@+id/search_swipe_refresh_layout" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

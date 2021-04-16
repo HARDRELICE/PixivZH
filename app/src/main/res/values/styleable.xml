@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PrettyImageView">
+        <attr name="shape_type">
+            <enum name="SHAPE_CIRCLE" value="0" />
+            <enum name="SHAPE_ROUND" value="1"/>
+        </attr>
+        <attr name="border_width" format="dimension"/>
+        <attr name="border_color" format="color"/>
+        <attr name="left_top_radiusX" format="dimension"/>
+        <attr name="left_top_radiusY" format="dimension"/>
+        <attr name="right_top_radiusX" format="dimension"/>
+        <attr name="right_top_radiusY" format="dimension"/>
+        <attr name="right_bottom_radiusX" format="dimension"/>
+        <attr name="right_bottom_radiusY" format="dimension"/>
+        <attr name="left_bottom_radiusX" format="dimension"/>
+        <attr name="left_bottom_radiusY" format="dimension"/>
+        <attr name="show_border" format="boolean"/>
+        <attr name="show_circle_dot" format="boolean"/>
+        <attr name="circle_dot_color" format="color"/>
+        <attr name="circle_dot_radius" format="dimension"/>
+    </declare-styleable>
+    <declare-styleable name="RoundTextView">
+        <attr name="rtv_background" format="color"/>
+        <attr name="rtv_border_width" format="dimension"/>
+        <attr name="rtv_border_color" format="dimension"/>
+        <attr name="rtv_border_radius" format="dimension"/>
+        <attr name="rtv_border_top_left_radius" format="dimension"/>
+        <attr name="rtv_border_top_right_radius" format="dimension"/>
+        <attr name="rtv_border_bottom_left_radius" format="dimension"/>
+        <attr name="rtv_border_bottom_right_radius" format="dimension"/>
+    </declare-styleable>
+</resources>

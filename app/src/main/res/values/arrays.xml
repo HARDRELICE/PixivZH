@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="title">
+        <item>Main</item>
+        <item>Rank</item>
+        <item>Search</item>
+        <item>Saved</item>
+    </string-array>
+    <integer-array name="select">
+        <item>@drawable/icon_home_active</item>
+        <item>@drawable/icon_rank_active</item>
+        <item>@drawable/icon_search_active</item>
+        <item>@drawable/icon_save_active</item>
+    </integer-array>
+    <integer-array name="unselect">
+        <item>@drawable/icon_home_inactive</item>
+        <item>@drawable/icon_rank_inactive</item>
+        <item>@drawable/icon_search_inactive</item>
+        <item>@drawable/icon_save_inactive</item>
+    </integer-array>
+</resources>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view_card_search"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="20dp"
+    app:cardElevation="0dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#eee"
+        android:padding="0dp">
+
+        <ImageView
+            android:id="@+id/image_view_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text_view_search_title"
+            android:adjustViewBounds="true"
+            android:paddingHorizontal="4dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/image_placeholder_loading" />
+
+
+        <com.hardrelice.pixivzh.widget.RoundTextView
+            android:id="@+id/text_view_search_title"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="4dp"
+            android:layout_marginTop="10dp"
+            android:paddingHorizontal="4dp"
+            android:background="@color/white"
+            android:text="rankTitle"
+            android:textStyle="bold"
+            android:textColor="#555"
+            android:gravity="center"
+            android:textSize="18sp"
+            app:rtv_background="#fff"
+            app:rtv_border_top_left_radius="15dp"
+            app:rtv_border_top_right_radius="15dp"/>
+
+
+        <com.hardrelice.pixivzh.widget.RoundTextView
+            android:id="@+id/text_view_user_name_search"
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="4dp"
+            android:layout_height="40dp"
+            android:layout_below="@id/image_view_search"
+            android:background="#fff"
+            android:padding="8dp"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:text="userName"
+            app:rtv_background="#fff"
+            app:rtv_border_bottom_left_radius="15dp"
+            app:rtv_border_bottom_right_radius="15dp"/>
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
