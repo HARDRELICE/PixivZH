@@ -21,6 +21,7 @@ import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.hardrelice.pixivzh.ui.main.adapter.RankAdapter
 import com.hardrelice.pixivzh.ui.main.datatype.RankItem
 import com.hardrelice.pixivzh.utils.ApplicationUtil
+import java.io.File
 import java.lang.ref.WeakReference
 
 
@@ -52,6 +53,7 @@ class UIHandler(activity: Activity) : Handler(Looper.getMainLooper()) {
 
     fun setImage(view: ImageView, imgPath: String, ratio: Float) {
         try {
+            if(!File(imgPath).exists()) toast("Failed to Load Image!")
             val screenWidth: Int = view.width
             val lp: ViewGroup.LayoutParams = view.layoutParams
             lp.width = screenWidth
@@ -82,7 +84,7 @@ class UIHandler(activity: Activity) : Handler(Looper.getMainLooper()) {
         }
     }
 
-    fun toast(text:String,duration:Int=Toast.LENGTH_LONG){
+    fun toast(text:String,duration:Int=Toast.LENGTH_SHORT){
         this.post{
             Toast.makeText(ApplicationUtil.ApplicationContext,text,duration).show()
         }
