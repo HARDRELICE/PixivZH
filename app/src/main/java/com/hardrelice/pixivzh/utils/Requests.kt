@@ -217,8 +217,11 @@ object Requests {
                 val raf = RandomAccessFile(tempPath, "rws")
                 raf.setLength(contentLength.toLong())
                 raf.close()
-                val segments: Int =
+                var segments: Int =
                     Math.ceil(conn.contentLength / 1024 / chunkSize_kb.toDouble()).toInt()
+                if(segments>50){
+                    segments = 50
+                }
                 println("sengments: $segments")
                 var cursor = 0
                 val jobs: MutableList<Thread> = mutableListOf()

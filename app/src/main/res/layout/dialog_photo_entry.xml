@@ -14,6 +14,8 @@
 <!--        android:scaleType="fitXY">-->
 <!--    </ImageView>-->
     <WebView
+        android:visibility="invisible"
+        android:overScrollMode="never"
         android:id="@+id/large_image"
         android:layout_height="match_parent"
         android:layout_width="match_parent"

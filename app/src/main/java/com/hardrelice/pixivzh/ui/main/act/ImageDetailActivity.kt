@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.ImageView
 import android.widget.Toast
@@ -21,10 +22,12 @@ import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.utils.Requests
 import com.hardrelice.pixivzh.utils.*
 import com.hardrelice.pixivzh.widget.ImageDialog
+import com.hardrelice.pixivzh.widget.addons.ImageDialogWebViewClient
 //import com.jelly.mango.Mango
 //import com.jelly.mango.Mango.position
 //import com.jelly.mango.MultiplexImage
 import kotlinx.android.synthetic.main.activity_image_detail.*
+import kotlinx.android.synthetic.main.activity_image_detail.view.*
 import kotlinx.android.synthetic.main.dialog_photo_entry.view.*
 import java.io.File
 
@@ -195,6 +198,7 @@ class ImageDetailActivity : Activity() {
 
 
         view.onSingleClick({
+            if(!downloaded) return@onSingleClick
             val inflater = LayoutInflater.from(this)
             val imgEntryView: View =
                 inflater.inflate(R.layout.dialog_photo_entry, null) // 加载自定义的布局文件
@@ -210,7 +214,6 @@ class ImageDetailActivity : Activity() {
             println("density${DisplayMetrics().density}")
 //            val htmlHeight=(screenSize[0]/picWidth*picHeight).toInt().px2dp().toInt()
 //            println(htmlHeight)
-
             val data = """
             <!DOCTYPE html>
             <html>
@@ -265,8 +268,10 @@ class ImageDetailActivity : Activity() {
             </script>
             </html>
             """.trimIndent()
+
             dialog.show()
             val img = imgEntryView.large_image
+            img.webViewClient = ImageDialogWebViewClient(img)
             handler.post{
 //                handler.setImage(img, originalUri, ratio)
                 img.settings.setSupportZoom(true)
