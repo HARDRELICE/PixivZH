@@ -1,25 +1,17 @@
 package com.hardrelice.pixivzh.ui.main.frg
 
-import android.app.AlertDialog
-import android.app.Dialog
 import android.content.Context.INPUT_METHOD_SERVICE
-import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.ImageView
 import android.widget.Toast
-import androidx.core.view.children
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.hardrelice.pixiver.UIDetail
-import com.hardrelice.pixiver.UIHandler
+import com.hardrelice.pixivzh.utils.UIHandler
 import com.hardrelice.pixivzh.Pixiv
 import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.mvp.view.BaseFragment
@@ -27,7 +19,6 @@ import com.hardrelice.pixivzh.ui.main.adapter.SearchAdapter
 import com.hardrelice.pixivzh.ui.main.datatype.SearchItem
 import com.hardrelice.pixivzh.ui.main.datatype.SearchSetting
 import com.hardrelice.pixivzh.utils.*
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_search.*
 import kotlinx.android.synthetic.main.fragment_search.search_view_search_bar
 import kotlinx.android.synthetic.main.fragment_search.view.*

@@ -1,20 +1,16 @@
 package com.hardrelice.pixivzh.ui.main.frg
 
-import android.app.Activity
 import android.os.Bundle
 import android.os.Message
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.os.HandlerCompat
 import androidx.core.view.get
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hardrelice.pixiver.UIDetail
-import com.hardrelice.pixiver.UIHandler
+import com.hardrelice.pixivzh.utils.UIHandler
 import com.hardrelice.pixivzh.Pixiv
 import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.mvp.view.BaseFragment
@@ -23,7 +19,6 @@ import com.hardrelice.pixivzh.ui.main.datatype.RankItem
 import com.hardrelice.pixivzh.utils.*
 import kotlinx.android.synthetic.main.fragment_rank.*
 import kotlinx.android.synthetic.main.fragment_rank.view.*
-import java.util.*
 
 class RankFragment : BaseFragment() {
     private lateinit var viewModel: RankViewModel

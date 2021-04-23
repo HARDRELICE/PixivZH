@@ -3,7 +3,6 @@ package com.hardrelice.pixivzh.utils
 import android.os.Message
 import android.util.Log
 import com.hardrelice.pixiver.UIDetail
-import com.hardrelice.pixiver.UIHandler
 import com.hardrelice.pixivzh.HttpsUtil
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -15,7 +14,8 @@ object Requests {
 
     data class Progress(
         var done: Int = 0,
-        var total: Int = 0
+        var total: Int = 0,
+        var lastUpdateTime:Long = 0L,
     )
 
     fun get(
@@ -213,15 +213,18 @@ object Requests {
             println("code ${conn.responseCode} length $contentLength")
 
             if (contentLength != -1) {
-                val progress = Progress(0, contentLength)
+                uiHandler.post{
+                    uiHandler.updateProgressBar(progressBarId,0)
+                }
+                val progress = Progress(0, contentLength, System.currentTimeMillis())
                 val raf = RandomAccessFile(tempPath, "rws")
                 raf.setLength(contentLength.toLong())
                 raf.close()
                 var segments: Int =
                     Math.ceil(conn.contentLength / 1024 / chunkSize_kb.toDouble()).toInt()
-                if(segments>50){
-                    segments = 50
-                }
+//                if(segments>150){
+//                    segments = 150
+//                }
                 println("sengments: $segments")
                 var cursor = 0
                 val jobs: MutableList<Thread> = mutableListOf()
@@ -336,7 +339,8 @@ object Requests {
                         progress.done += len
                         println("len $len done ${progress.done}")
                         done += len
-                        if (progressBarId != -1) {
+                        if (progressBarId != -1 && ((System.currentTimeMillis() - progress.lastUpdateTime))>41L) {
+                            progress.lastUpdateTime = System.currentTimeMillis()
                             val msg = Message()
                             msg.what = UIHandler.UPDATE_PROGRESS_BAR
                             val detail =

@@ -1,9 +1,10 @@
 package com.hardrelice.pixivzh
 
 import android.util.Log
-import android.widget.Toast
 import com.google.gson.Gson
-import com.hardrelice.pixiver.UIHandler
+import com.hardrelice.pixivzh.FileHandler.checkDir
+import com.hardrelice.pixivzh.FileHandler.getIllustFolder
+import com.hardrelice.pixivzh.utils.UIHandler
 import com.hardrelice.pixivzh.ui.main.datatype.CommonItem
 import com.hardrelice.pixivzh.ui.main.datatype.RankItem
 import com.hardrelice.pixivzh.ui.main.datatype.SearchItem
@@ -15,9 +16,7 @@ import com.hardrelice.pixivzh.utils.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
-import java.net.URL
 import java.util.concurrent.TimeoutException
-import javax.net.ssl.HttpsURLConnection
 import kotlin.collections.HashMap
 
 object Pixiv {
@@ -123,7 +122,8 @@ object Pixiv {
 
     // 储存成功获取的json
     fun saveIllustInfo(pid: String, data: String) {
-        File(FileHandler.getIllustFolder(pid, "info.json")).writeText(data)
+        checkDir(getIllustFolder(pid))
+        File(getIllustFolder(pid, "info.json")).writeText(data)
     }
 
     // 从json文本中提取IllustInfo

@@ -12,7 +12,7 @@ import androidx.cardview.widget.CardView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.hardrelice.pixiver.UIDetail
-import com.hardrelice.pixiver.UIHandler
+import com.hardrelice.pixivzh.utils.UIHandler
 import com.hardrelice.pixivzh.FileHandler
 import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.utils.Requests

@@ -5,12 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
-import androidx.core.net.toFile
-import androidx.core.net.toUri
 import com.hardrelice.pixivzh.utils.ApplicationUtil
 import java.io.BufferedOutputStream
 import java.io.File
-import java.util.*
 
 
 object FileHandler {

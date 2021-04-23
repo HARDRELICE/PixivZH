@@ -1,5 +1,8 @@
 package com.hardrelice.pixivzh.ui.main.act
 
+//import com.jelly.mango.Mango
+//import com.jelly.mango.Mango.position
+//import com.jelly.mango.MultiplexImage
 import android.app.Activity
 import android.os.Bundle
 import android.os.Message
@@ -8,24 +11,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.graphics.drawable.toDrawable
 import com.bumptech.glide.Glide
 import com.hardrelice.pixiver.UIDetail
-import com.hardrelice.pixiver.UIHandler
+import com.hardrelice.pixivzh.utils.UIHandler
 import com.hardrelice.pixivzh.FileHandler
 import com.hardrelice.pixivzh.Pixiv
 import com.hardrelice.pixivzh.R
-import com.hardrelice.pixivzh.utils.Requests
 import com.hardrelice.pixivzh.utils.*
 import com.hardrelice.pixivzh.widget.ImageDialog
 import com.hardrelice.pixivzh.widget.addons.ImageDialogWebViewClient
-//import com.jelly.mango.Mango
-//import com.jelly.mango.Mango.position
-//import com.jelly.mango.MultiplexImage
 import kotlinx.android.synthetic.main.activity_image_detail.*
 import kotlinx.android.synthetic.main.activity_image_detail.view.*
 import kotlinx.android.synthetic.main.dialog_photo_entry.view.*
@@ -38,7 +36,7 @@ class ImageDetailActivity : Activity() {
     var downloaded = false
     var downloading = false
     fun setImage(
-        view: View,
+        view: ImageView,
         pid: String,
         uri: String,
         ratio: Float,
@@ -48,11 +46,18 @@ class ImageDetailActivity : Activity() {
         if (downloading) return
         downloading = true
         downloaded = Pixiv.getIllustImage(pid, handler, progressBarId)
-        val msg = Message()
-        msg.what = UIHandler.SET_IMAGE
-        val detail = UIDetail(view = view, string = uri, float = ratio)
-        msg.obj = detail
-        handler.sendMessage(msg)
+        if (downloaded) {
+            val msg = Message()
+            msg.what = UIHandler.SET_IMAGE
+            val detail = UIDetail(view = view, string = uri, float = ratio)
+            msg.obj = detail
+            handler.sendMessage(msg)
+        } else {
+            handler.toast("downloading failed...")
+            handler.post {
+                view.setImageResource(R.color.inactive_grey)
+            }
+        }
         downloading = false
     }
 
@@ -105,7 +110,7 @@ class ImageDetailActivity : Activity() {
         val userName = intent.extras?.getString("user_name") as String
         val picWidth = intent.extras?.getFloat("width") as Float
         val picHeight = intent.extras?.getFloat("height") as Float
-        val ratio = picWidth/picHeight
+        val ratio = picWidth / picHeight
         val thumbUri = intent.extras?.getString("uri") as String
         val thumbUrl = intent.extras?.getString("thumb_url") as String
         val profileImg = intent.extras?.getString("profile_img") as String
@@ -116,21 +121,21 @@ class ImageDetailActivity : Activity() {
 
         setContentView(R.layout.activity_image_detail)
 
-        R.color.pixiv_blue.setStatusBarColor(this)
+//        R.color.pixiv_blue.setStatusBarColor(this)
         toolbar_image_detail.setBackgroundColor(R.color.pixiv_blue.getColor())
 
         toolbar_image_detail.setNavigationOnClickListener {
             this.finish()
         }
         floating_action_button_save_image.setOnClickListener {
-            if (downloaded) {
+            if (downloaded && File(originalUri).exists()) {
                 FileHandler.writeFileToStorage(originalUri, "Pictures/pixivzh", "$illustId.jpg")
                 FileHandler.refreshMediaStore(FileHandler.storage("Pictures/pixivzh/$illustId.jpg"))
                 Toast.makeText(ApplicationUtil.ApplicationContext, "Saved!", Toast.LENGTH_SHORT)
                     .show()
             } else {
                 Toast.makeText(
-                    ApplicationUtil.ApplicationContext,
+                    this,
                     "Downloading...",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -156,7 +161,6 @@ class ImageDetailActivity : Activity() {
             height = (width / ratio).toInt()
             view.layoutParams.height = height
             Log.e("Width", width.toString())
-            view.setImageResource(R.color.pixiv_blue)
         }
         toolbar_image_detail.title = illustTitle
         toolbar_image_detail.subtitle = userName
@@ -198,18 +202,22 @@ class ImageDetailActivity : Activity() {
 
 
         view.onSingleClick({
-            if(!downloaded) return@onSingleClick
+            if (!downloaded) return@onSingleClick
             val inflater = LayoutInflater.from(this)
             val imgEntryView: View =
                 inflater.inflate(R.layout.dialog_photo_entry, null) // 加载自定义的布局文件
             val dialog = ImageDialog(this, R.style.FullScreenDialog)
             dialog.setContentView(imgEntryView)
             dialog.window!!.setBackgroundDrawableResource(R.color.black)
-            dialog.window!!.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            dialog.window!!.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
             dialog.window!!.decorView.setPadding(0, 0, 0, 0)
-            dialog.window!!.decorView.background = R.color.black.toDrawable()
+            dialog.window!!.decorView.background = R.color.transparent.toDrawable()
             dialog.window!!.setLayout(screenSize[0], screenSize[1])
-            Log.e("url",originalUri)
+
+            Log.e("url", originalUri)
             println("screenSize$screenSize")
             println("density${DisplayMetrics().density}")
 //            val htmlHeight=(screenSize[0]/picWidth*picHeight).toInt().px2dp().toInt()
@@ -272,7 +280,7 @@ class ImageDetailActivity : Activity() {
             dialog.show()
             val img = imgEntryView.large_image
             img.webViewClient = ImageDialogWebViewClient(img)
-            handler.post{
+            handler.post {
 //                handler.setImage(img, originalUri, ratio)
                 img.settings.setSupportZoom(true)
                 img.settings.useWideViewPort = true
@@ -280,12 +288,12 @@ class ImageDetailActivity : Activity() {
                 img.settings.displayZoomControls = false
                 img.settings.javaScriptEnabled = true
                 img.setInitialScale(25)
-                img.loadDataWithBaseURL(null, data,"text/html","UTF-8", null)
+                img.loadDataWithBaseURL(null, data, "text/html", "UTF-8", null)
             }
             img.setOnClickListener {
                 dialog.cancel()
             }
-            imgEntryView.setOnClickListener{
+            imgEntryView.setOnClickListener {
                 dialog.cancel()
             }
         })

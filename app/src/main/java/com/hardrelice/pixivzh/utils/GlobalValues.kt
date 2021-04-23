@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.ContextWrapper
 import android.os.SystemClock
 import android.view.View
-import com.hardrelice.pixiver.UIHandler
 import com.hardrelice.pixivzh.HttpsUtil
 import com.hardrelice.pixivzh.R
 import java.net.URL
@@ -64,16 +63,7 @@ fun Int.getColor():Int{
     }
 }
 
-fun Int.setStatusBarColor(activity: Activity){
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-        activity.window.statusBarColor = activity.resources.getColor(
-            this,
-            activity.theme
-        )
-    } else {
-        activity.window.statusBarColor = activity.resources.getColor(this)
-    }
-}
+
 
 fun String.openVerifiedConnection(headers: Map<String, String> = pixiv_headers, params: HashMap<String, Any?> = hashMapOf()): HttpsURLConnection{
     HttpsUtil.trustEveryone()
@@ -115,3 +105,4 @@ fun View.onSingleClick(
         }
     }
 }
+

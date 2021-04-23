@@ -13,7 +13,7 @@ import androidx.cardview.widget.CardView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.hardrelice.pixiver.UIDetail
-import com.hardrelice.pixiver.UIHandler
+import com.hardrelice.pixivzh.utils.UIHandler
 import com.hardrelice.pixivzh.FileHandler
 import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.utils.Requests
@@ -29,7 +29,7 @@ class RankAdapter(itemList: List<RankItem>, activity: FragmentActivity) :
     lateinit var context: Context
     var handler = UIHandler(activity)
     var mutableItemList = itemList as MutableList<RankItem>
-    var taskList = hashMapOf<String, Boolean>()
+//    var taskList = hashMapOf<String, Boolean>()
 
     class RankViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.image_view_top
@@ -54,27 +54,22 @@ class RankAdapter(itemList: List<RankItem>, activity: FragmentActivity) :
         val uri = FileHandler.getIllustFolder(illustId, "thumb.jpg")
         val tempUri = FileHandler.getIllustFolder(illustId, "thumb_temp.jpg")
         FileHandler.checkDir(baseUri)
-        println("$illustId ${taskList[illustId]}")
         try {
             if (!File(uri).exists()) {
-                if (taskList[illustId] == null) {
-                    taskList[illustId] = false
-                    Requests.download(
-                        thumbUrl.replace("i.pximg.net", pximg_host),
-                        pixiv_headers,
-                        tempUri
-                    )
-                    File(tempUri).inputStream().use { input ->
-                        BufferedOutputStream(File(uri).outputStream()).use { output ->
-                            input.copyTo(output)
-                        }
+                Requests.download(
+                    thumbUrl.replace("i.pximg.net", pximg_host),
+                    pixiv_headers,
+                    tempUri
+                )
+                File(tempUri).inputStream().use { input ->
+                    BufferedOutputStream(File(uri).outputStream()).use { output ->
+                        input.copyTo(output)
                     }
-                    File(tempUri).delete()
-                    taskList[illustId] = true
                 }
+                File(tempUri).delete()
             }
             if (holder.layoutPosition == position) {
-                if (taskList[illustId] == null || taskList[illustId] == true) {
+                if (File(uri).exists()) {
                     val msg = Message()
                     msg.what = UIHandler.SET_IMAGE_VIEW
                     val detail = UIDetail(view = view, string = uri)

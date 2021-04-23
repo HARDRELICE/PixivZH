@@ -1,7 +1,6 @@
-package com.hardrelice.pixiver
+package com.hardrelice.pixivzh.utils
 
 import android.app.Activity
-import android.app.Application
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
@@ -18,11 +17,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
+import com.hardrelice.pixiver.UIDetail
 import com.hardrelice.pixivzh.ui.main.adapter.RankAdapter
 import com.hardrelice.pixivzh.ui.main.datatype.RankItem
-import com.hardrelice.pixivzh.utils.ApplicationUtil
 import java.io.File
 import java.lang.ref.WeakReference
+import kotlin.math.abs
 
 
 class UIHandler(activity: Activity) : Handler(Looper.getMainLooper()) {
@@ -47,8 +47,10 @@ class UIHandler(activity: Activity) : Handler(Looper.getMainLooper()) {
 
     fun updateProgressBar(viewId: Int, progress: Int) {
         val progressBar: ProgressBar = activity.findViewById(viewId)
-        progressBar.progress = progress
-        println(progressBar.progress)
+        if (abs(progress - progressBar.progress) > 1 || progress == 100 || progress == 0) {
+            progressBar.progress = progress
+//            println(progressBar.progress)
+        }
     }
 
     fun setImage(view: ImageView, imgPath: String, ratio: Float) {
@@ -102,7 +104,7 @@ class UIHandler(activity: Activity) : Handler(Looper.getMainLooper()) {
             }
             UPDATE_PROGRESS_BAR -> {
                 post {
-                    var percent = 0
+                    val percent: Int
                     if (uiDetail.int != 0) {
                         percent = uiDetail.int
                     } else {

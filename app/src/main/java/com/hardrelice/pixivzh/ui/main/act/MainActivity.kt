@@ -1,16 +1,12 @@
 package com.hardrelice.pixivzh.ui.main.act
 
-import android.app.AlertDialog
-import android.graphics.Rect
 import android.util.Log
-import android.view.View
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
 import com.flyco.tablayout.listener.CustomTabEntity
 import com.flyco.tablayout.listener.OnTabSelectListener
-import com.hardrelice.pixiver.UIHandler
+import com.hardrelice.pixivzh.utils.UIHandler
 import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.base.BaseActivity
 import com.hardrelice.pixivzh.mvp.view.BaseFragment
@@ -25,7 +21,6 @@ import com.hardrelice.pixivzh.ui.main.view.MainView
 import com.hardrelice.pixivzh.utils.ApplicationUtil
 import com.hardrelice.pixivzh.utils.handler
 import com.hardrelice.pixivzh.utils.screenSize
-import com.hardrelice.pixivzh.utils.setStatusBarColor
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
@@ -47,7 +42,7 @@ class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
 //        } else {
 //            window.statusBarColor = resources.getColor(R.color.pixiv_blue_variant_transparent)
 //        }
-        R.color.pixiv_blue.setStatusBarColor(this)
+//        R.color.pixiv_blue.setStatusBarColor(this)
         when {
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R -> {
     //            window.decorView.windowInsetsController?.setSystemBarsAppearance(
