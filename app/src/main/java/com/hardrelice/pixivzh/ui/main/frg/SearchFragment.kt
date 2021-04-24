@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.hardrelice.pixiver.UIDetail
@@ -19,6 +20,7 @@ import com.hardrelice.pixivzh.ui.main.adapter.SearchAdapter
 import com.hardrelice.pixivzh.ui.main.datatype.SearchItem
 import com.hardrelice.pixivzh.ui.main.datatype.SearchSetting
 import com.hardrelice.pixivzh.utils.*
+import com.hardrelice.pixivzh.utils.URLProtector.isLegal
 import kotlinx.android.synthetic.main.fragment_search.*
 import kotlinx.android.synthetic.main.fragment_search.search_view_search_bar
 import kotlinx.android.synthetic.main.fragment_search.view.*
@@ -51,7 +53,7 @@ class SearchFragment : BaseFragment() {
     }
 
     fun getWord(): String {
-        return root.search_view_search_bar.query.toString()
+        return root.search_view_search_bar.text.toString()
     }
 
     override fun onCreateView(
@@ -90,6 +92,7 @@ class SearchFragment : BaseFragment() {
                     }.start()
                 }
             }
+
             override fun refresh() {
             }
         })
@@ -133,24 +136,46 @@ class SearchFragment : BaseFragment() {
 
         root.search_swipe_refresh_layout.setColorSchemeColors(R.color.pixiv_blue.getColor())
 
-        root.search_view_search_bar.isSubmitButtonEnabled = true
-        root.search_view_search_bar.isIconified = false
-        root.search_view_search_bar.setIconifiedByDefault(false)
+//        root.search_view_search_bar.isSubmitButtonEnabled = true
+//        root.search_view_search_bar.isIconified = false
+//        root.search_view_search_bar.setIconifiedByDefault(false)
 
-        root.search_view_search_bar.setOnQueryTextFocusChangeListener { v, hasFocus ->
+        root.search_view_search_bar.setOnFocusChangeListener { v, hasFocus ->
             when {
                 hasFocus -> {
-
+                    root.clear_button.visibility = View.VISIBLE
                 }
                 else -> {
+                    root.clear_button.visibility = View.INVISIBLE
                     handler.post {
                         ApplicationUtil.Activity!!.currentFocus?.clearFocus()
                         val imm =
                             activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                         imm.hideSoftInputFromWindow(search_view_search_bar.windowToken, 0)
+
                     }
                 }
             }
+        }
+        root.search_view_search_bar.doOnTextChanged { text, start, before, count ->
+            if (root.search_view_search_bar.text.toString().isLegal()){
+                // association
+            } else {
+
+            }
+        }
+        root.search_view_search_bar.setOnEditorActionListener { v, actionId, event ->
+            val value = v.text.toString()
+            return@setOnEditorActionListener if (value.isLegal()) {
+                // do search
+                activity?.currentFocus?.clearFocus()
+                true
+            } else {
+                false
+            }
+        }
+        root.clear_button.setOnClickListener {
+            root.search_view_search_bar.text.clear()
         }
 
         return root

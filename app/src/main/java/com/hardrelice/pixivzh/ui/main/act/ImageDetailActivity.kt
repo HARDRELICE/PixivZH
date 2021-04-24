@@ -45,6 +45,9 @@ class ImageDetailActivity : Activity() {
     ) {
         if (downloading) return
         downloading = true
+        handler.post {
+            view.setImageResource(R.color.pixiv_blue)
+        }
         downloaded = Pixiv.getIllustImage(pid, handler, progressBarId)
         if (downloaded) {
             val msg = Message()
