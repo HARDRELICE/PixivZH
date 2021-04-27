@@ -1,15 +1,14 @@
-package com.hardrelice.pixivzh
+package com.hardrelice.pixivzh.utils
 
 import android.util.Log
 import com.google.gson.Gson
+import com.hardrelice.pixivzh.FileHandler
 import com.hardrelice.pixivzh.FileHandler.checkDir
 import com.hardrelice.pixivzh.FileHandler.getIllustFolder
-import com.hardrelice.pixivzh.utils.UIHandler
 import com.hardrelice.pixivzh.ui.main.datatype.CommonItem
 import com.hardrelice.pixivzh.ui.main.datatype.RankItem
 import com.hardrelice.pixivzh.ui.main.datatype.SearchItem
 import com.hardrelice.pixivzh.ui.main.datatype.SearchSetting
-import com.hardrelice.pixivzh.utils.*
 //import kotlinx.coroutines.Job
 //import kotlinx.coroutines.android.awaitFrame
 //import kotlinx.coroutines.awaitAll
@@ -73,6 +72,12 @@ object Pixiv {
         var rating_count: Int = 0,
         var view_count: Int = 0
 //        val :String = "",
+    )
+
+    data class TagInfo(
+        var abstract:String = "",
+        var id:String = "",
+        var image:String = ""
     )
 
     // 通过thumbUrl(mini, thumb, small中任意一种)生成所有Urls
@@ -254,6 +259,33 @@ object Pixiv {
             }
         }
         return false
+    }
+
+    fun searchTag(tagName:String, lang:String = "zh"): TagInfo?{
+        val url = "https://$pixiv_host/ajax/search/tags/$tagName?lang=$lang"
+        val connection = url.openVerifiedConnection()
+        val tagInfo = TagInfo()
+        try {
+            connection.connectTimeout = 5000
+            connection.readTimeout = 5000
+            val data = connection.inputStream.bufferedReader().readText()
+            val body = JSONObject(data).getJSONObject("body")
+            return try {
+                val pixpedia = body.getJSONObject("pixpedia")
+                tagInfo.abstract = pixpedia.getString("abstract")
+                tagInfo.id = pixpedia.getString("id")
+                tagInfo.image = pixpedia.getString("image")
+                tagInfo
+            } catch (e:Exception){
+                null
+            }
+        } catch (e: TimeoutException) {
+            handler.toast("Timeout!")
+            return null
+        } catch (e: Exception) {
+            handler.toast("Unknown Exception!")
+            return null
+        }
     }
 
     // 关键字搜索illust

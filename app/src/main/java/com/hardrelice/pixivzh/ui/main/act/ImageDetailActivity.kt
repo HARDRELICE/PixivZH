@@ -19,7 +19,7 @@ import com.bumptech.glide.Glide
 import com.hardrelice.pixiver.UIDetail
 import com.hardrelice.pixivzh.utils.UIHandler
 import com.hardrelice.pixivzh.FileHandler
-import com.hardrelice.pixivzh.Pixiv
+import com.hardrelice.pixivzh.utils.Pixiv
 import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.utils.*
 import com.hardrelice.pixivzh.widget.ImageDialog

@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hardrelice.pixiver.UIDetail
 import com.hardrelice.pixivzh.utils.UIHandler
-import com.hardrelice.pixivzh.Pixiv
+import com.hardrelice.pixivzh.utils.Pixiv
 import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.mvp.view.BaseFragment
 import com.hardrelice.pixivzh.ui.main.adapter.RankAdapter

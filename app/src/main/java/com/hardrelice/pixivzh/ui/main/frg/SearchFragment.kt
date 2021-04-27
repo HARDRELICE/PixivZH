@@ -13,14 +13,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.hardrelice.pixiver.UIDetail
 import com.hardrelice.pixivzh.utils.UIHandler
-import com.hardrelice.pixivzh.Pixiv
+import com.hardrelice.pixivzh.utils.Pixiv
 import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.mvp.view.BaseFragment
 import com.hardrelice.pixivzh.ui.main.adapter.SearchAdapter
 import com.hardrelice.pixivzh.ui.main.datatype.SearchItem
 import com.hardrelice.pixivzh.ui.main.datatype.SearchSetting
 import com.hardrelice.pixivzh.utils.*
-import com.hardrelice.pixivzh.utils.URLProtector.isLegal
+import com.hardrelice.pixivzh.utils.URLProtector.encodeURL
+import com.hardrelice.pixivzh.utils.URLProtector.isURLLegal
 import kotlinx.android.synthetic.main.fragment_search.*
 import kotlinx.android.synthetic.main.fragment_search.search_view_search_bar
 import kotlinx.android.synthetic.main.fragment_search.view.*
@@ -157,16 +158,19 @@ class SearchFragment : BaseFragment() {
                 }
             }
         }
+
+
         root.search_view_search_bar.doOnTextChanged { text, start, before, count ->
-            if (root.search_view_search_bar.text.toString().isLegal()){
-                // association
+            if (text.toString().isURLLegal()){
+                println(text.toString().replace("""\s""".toRegex()," ").encodeURL().replace("+","%20"))
+            // association
             } else {
 
             }
         }
         root.search_view_search_bar.setOnEditorActionListener { v, actionId, event ->
             val value = v.text.toString()
-            return@setOnEditorActionListener if (value.isLegal()) {
+            return@setOnEditorActionListener if (value.isURLLegal()) {
                 // do search
                 activity?.currentFocus?.clearFocus()
                 true
