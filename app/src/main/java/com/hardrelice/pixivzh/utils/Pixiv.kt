@@ -91,8 +91,8 @@ object Pixiv {
             ret = pat2.find(url)
         }
         if (ret != null) {
-            val str = ret!!.groupValues[1]
-            val urls = Urls(
+            val str = ret.groupValues[1]
+            return Urls(
                 mini = "https://i.pximg.net/c/48x48/img-master/img/${str}_square1200.jpg",
                 thumb = "https://i.pximg.net/c/250x250_80_a2/img-master/img/${str}_square1200.jpg",
                 small = "https://i.pximg.net/c/540x540_70/img-master/img/${str}_master1200.jpg",
@@ -100,7 +100,6 @@ object Pixiv {
                 original = "https://i.pximg.net/img-original/img/${str}.jpg",
                 rank = "https://i.pximg.net/c/240x480/img-master/img/${str}_master1200.jpg"
             )
-            return urls
         }
         return Urls()
     }
@@ -146,13 +145,13 @@ object Pixiv {
 
     // 从缓存的json中获取IllustInfo
     fun getIllustInfoFromLocal(pid: String): IllustInfo? {
-        val data = File(FileHandler.getIllustFolder(pid, "info.json")).readText()
+        val data = File(getIllustFolder(pid, "info.json")).readText()
         return parseIllustInfo(pid, data)
     }
 
     // 获取IllustInfo，自动检查是否缓存
     fun getIllustInfo(pid: String): IllustInfo? {
-        if (File(FileHandler.getIllustFolder(pid, "info.json")).exists()) {
+        if (File(getIllustFolder(pid, "info.json")).exists()) {
             return getIllustInfoFromLocal(pid)
         }
         try {
@@ -176,32 +175,32 @@ object Pixiv {
         progressBarId: Int,
         thumbUri: String = ""
     ): Boolean {
-        val picPath = FileHandler.getIllustFolder(pid, "original.jpg")
-        val picDir = FileHandler.getIllustFolder(pid)
-        val tempPath = FileHandler.getIllustFolder(pid, "temp.jpg")
+        val picPath = getIllustFolder(pid, "original.jpg")
+        val picDir = getIllustFolder(pid)
+        val tempPath = getIllustFolder(pid, "temp.jpg")
         if (File(picPath).exists()) {
             println("exists")
             return true
         }
-        var url: String? = null
-        if (thumbUri == "") {
+        val url: String?
+        url = if (thumbUri == "") {
             println("getInfo Start")
             val info = getIllustInfo(pid)
             println("getInfo End")
-            url = info?.urls?.original
+            info?.urls?.original
         } else {
-            url = generateUrlsFromThumbUrl(thumbUri).original
+            generateUrlsFromThumbUrl(thumbUri).original
         }
         println("url$url")
         if (url != null) {
-            FileHandler.checkDir(picDir)
+            checkDir(picDir)
 //            println(picPath)
             url.let {
 //                Rq.download(url.replace("i.pximg.net", pximg_host), hashMapOf<String,String>("Host" to "www.pixiv.net","Referer" to "https://www.pixiv.net".encode()),picPath)
                 try {
                     val x = Requests.threadDownload(
                         url.replace("i.pximg.net", pximg_host),
-                        hashMapOf<String, String>(
+                        hashMapOf(
                             "Host" to "www.pixiv.net",
                             "Referer" to "https://www.pixiv.net".encode()
                         ),
@@ -226,7 +225,7 @@ object Pixiv {
 
     // 多线程下载original图片
     fun getIllustImageThumb(pid: String): Boolean {
-        val picDir = FileHandler.externalCacheDir()?.let { FileHandler.join(it, pid) }!!
+        val picDir = FileHandler.externalCacheDir().let { FileHandler.join(it, pid) }
         val picPath = FileHandler.join(picDir, "original.jpg")
         if (File(picPath).exists()) {
             println("exists")
@@ -238,14 +237,14 @@ object Pixiv {
         val url = info?.urls?.thumb
         println("url$url")
         if (url != null) {
-            FileHandler.checkDir(picDir)
+            checkDir(picDir)
 //            println(picPath)
             url.let {
                 while (true) {
                     try {
                         Requests.download(
                             url.replace("i.pximg.net", pximg_host),
-                            hashMapOf<String, String>(
+                            hashMapOf(
                                 "Host" to "www.pixiv.net",
                                 "Referer" to "https://www.pixiv.net".encode()
                             ),
@@ -479,7 +478,7 @@ object Pixiv {
                 val x = parseIllustInfoShort(obj.toString())
                 items.add(
                     CommonItem(
-                        illustId = x.id.toString(),
+                        illustId = x.id,
                         title = x.title,
                         userId = x.userId,
                         userName = x.userName,

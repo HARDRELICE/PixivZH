@@ -4,7 +4,7 @@
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/pixiv_blue</item>
         <item name="colorPrimaryVariant">@color/pixiv_blue_variant_dark</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/pixiv_blue_variant_light</item>
         <item name="colorSecondaryVariant">@color/pixiv_blue_variant</item>
