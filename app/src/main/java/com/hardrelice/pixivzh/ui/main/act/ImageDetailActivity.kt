@@ -3,6 +3,7 @@ package com.hardrelice.pixivzh.ui.main.act
 //import com.jelly.mango.Mango
 //import com.jelly.mango.Mango.position
 //import com.jelly.mango.MultiplexImage
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
 import android.os.Message
@@ -104,6 +105,7 @@ class ImageDetailActivity : Activity() {
         }
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         println(intent.extras?.getString("user_name"))
