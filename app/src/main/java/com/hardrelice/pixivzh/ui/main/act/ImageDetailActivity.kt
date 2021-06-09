@@ -1,8 +1,5 @@
 package com.hardrelice.pixivzh.ui.main.act
 
-//import com.jelly.mango.Mango
-//import com.jelly.mango.Mango.position
-//import com.jelly.mango.MultiplexImage
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
@@ -29,7 +26,6 @@ import kotlinx.android.synthetic.main.activity_image_detail.*
 import kotlinx.android.synthetic.main.activity_image_detail.view.*
 import kotlinx.android.synthetic.main.dialog_photo_entry.view.*
 import java.io.File
-
 
 class ImageDetailActivity : Activity() {
     var handler = UIHandler(this)
