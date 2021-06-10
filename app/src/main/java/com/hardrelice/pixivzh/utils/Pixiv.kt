@@ -353,16 +353,16 @@ object Pixiv {
             val x = parseIllustInfoShort(info[i].toString())
             items.add(
                 SearchItem(
-                    illustId = x.illust_id.toString(),
+                    illustId = x.id,
                     title = x.title,
-                    userId = x.user_id,
-                    userName = x.user_name,
-                    profileImg = x.profile_img,
+                    userId = x.userId,
+                    userName = x.userName,
+                    profileImg = x.profileImageUrl,
                     thumbUrl = x.url,
                     width = x.width,
                     height = x.height,
                     tags = x.tags_ as ArrayList<String>,
-                    pageCount = x.illust_page_count.toInt()
+                    pageCount = x.pageCount
                 )
             )
         }

@@ -6,14 +6,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.hardrelice.pixiver.UIDetail
-import com.hardrelice.pixivzh.utils.UIHandler
-import com.hardrelice.pixivzh.utils.Pixiv
 import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.mvp.view.BaseFragment
 import com.hardrelice.pixivzh.ui.main.adapter.SearchAdapter
@@ -23,7 +23,6 @@ import com.hardrelice.pixivzh.utils.*
 import com.hardrelice.pixivzh.utils.URLProtector.encodeURL
 import com.hardrelice.pixivzh.utils.URLProtector.isURLLegal
 import kotlinx.android.synthetic.main.fragment_search.*
-import kotlinx.android.synthetic.main.fragment_search.search_view_search_bar
 import kotlinx.android.synthetic.main.fragment_search.view.*
 
 
@@ -42,15 +41,55 @@ class SearchFragment : BaseFragment() {
     override fun setData() {
         if (!saved) {
             saved = true
-            handler.send(
-                UIHandler.SET_FRAGMENT,
-                UIDetail(
-                    view = search_recycler_view,
-                    obj = search,
-                    activity = this.requireActivity()
-                )
-            )
+//            handler.send(
+//                UIHandler.SET_FRAGMENT,
+//                UIDetail(
+//                    view = search_recycler_view,
+//                    obj = search,
+//                    activity = this.requireActivity()
+//                )
+//            )
+            handler.post {
+                val view = search_recycler_view as RecyclerView
+                view.adapter =
+                    SearchAdapter(search, activity as FragmentActivity)
+            }
         }
+    }
+
+    fun searchData() {
+        Thread {
+            setting.p = 1
+//            try {
+                search = mutableListOf()
+                search.addAll(Pixiv.search(getWord(), setting))
+                setting.p++
+//            } catch (e: Exception) {
+//                Log.e("search",e.message.toString())
+//                handler.toast("Request timeout!")
+//            }
+            if (search.size != 0) {
+//                handler.send(
+//                    UIHandler.SET_FRAGMENT,
+//                    UIDetail(
+//                        view = search_recycler_view,
+//                        obj = search,
+//                        activity = this.requireActivity()
+//                    )
+//                )
+                handler.post {
+                    val view = search_recycler_view as RecyclerView
+                    view.adapter =
+                        SearchAdapter(search, activity as FragmentActivity)
+                }
+            } else {
+                handler.toast("SetData Exception!")
+                Log.e("setData", "wrong")
+            }
+            handler.post {
+                root.search_swipe_refresh_layout.isRefreshing = false
+            }
+        }.start()
     }
 
     fun getWord(): String {
@@ -65,7 +104,7 @@ class SearchFragment : BaseFragment() {
         viewModel = ViewModelProvider(this).get(SearchViewModel::class.java)
         root = inflater.inflate(R.layout.fragment_search, container, false)
         root.search_recycler_view.adapter = SearchAdapter(search, this.requireActivity())
-        root.search_recycler_view.layoutManager = GridLayoutManager(this.activity, 4)
+        root.search_recycler_view.layoutManager = GridLayoutManager(this.activity, 2)
         root.search_recycler_view.setHasFixedSize(false)
         root.search_recycler_view.setListener(object : RecyclerListener {
             override fun loadMore() {
@@ -76,14 +115,21 @@ class SearchFragment : BaseFragment() {
                         val data = Pixiv.search(getWord(), setting)
                         if (data.size != 0) {
                             println("LOADMORE")
-                            handler.send(
-                                UIHandler.UPDATE_FRAGMENT,
-                                UIDetail(
-                                    view = root.search_recycler_view,
-                                    obj = data,
-                                    int = search.size
-                                )
-                            )
+//                            handler.send(
+//                                UIHandler.UPDATE_FRAGMENT,
+//                                UIDetail(
+//                                    view = root.search_recycler_view,
+//                                    obj = data,
+//                                    int = search.size
+//                                )
+//                            )
+                            handler.post {
+                                val view = root.search_recycler_view as RecyclerView
+                                val more = data as List<SearchItem>
+                                var adapter = view.adapter as SearchAdapter
+                                adapter!!.addRangeItem(search.size, more.size, more)
+                                view.adapter!!.notifyItemRangeInserted(search.size, more.size)
+                            }
                             setting.p++
                         }
                         loading = false
@@ -106,27 +152,25 @@ class SearchFragment : BaseFragment() {
                     search.addAll(Pixiv.search(getWord(), setting))
                     setting.p++
                 } catch (e: Exception) {
-                    Toast.makeText(
-                        ApplicationUtil.ApplicationContext,
-                        "Request timeout! ",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Log.e("search",e.message.toString())
+                    handler.toast("Request timeout!")
                 }
                 if (search.size != 0) {
-                    handler.send(
-                        UIHandler.SET_FRAGMENT,
-                        UIDetail(
-                            view = search_recycler_view,
-                            obj = search,
-                            activity = this.requireActivity()
-                        )
-                    )
+//                    handler.send(
+//                        UIHandler.SET_FRAGMENT,
+//                        UIDetail(
+//                            view = search_recycler_view,
+//                            obj = search,
+//                            activity = this.requireActivity()
+//                        )
+//                    )
+                    handler.post {
+                        val view = search_recycler_view as RecyclerView
+                        view.adapter =
+                            SearchAdapter(search, activity as FragmentActivity)
+                    }
                 } else {
-                    Toast.makeText(
-                        ApplicationUtil.ApplicationContext,
-                        "SetData Exception!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    handler.toast("SetData Exception!")
                     Log.e("setData", "wrong")
                 }
                 handler.post {
@@ -162,7 +206,12 @@ class SearchFragment : BaseFragment() {
 
         root.search_view_search_bar.doOnTextChanged { text, start, before, count ->
             if (text.toString().isURLLegal()){
-                println(text.toString().replace("""\s""".toRegex()," ").encodeURL().replace("+","%20"))
+                println(
+                    text.toString().replace("""\s""".toRegex(), " ").encodeURL().replace(
+                        "+",
+                        "%20"
+                    )
+                )
             // association
             } else {
 
@@ -180,6 +229,24 @@ class SearchFragment : BaseFragment() {
         }
         root.clear_button.setOnClickListener {
             root.search_view_search_bar.text.clear()
+        }
+
+//        root.search_view_search_bar.setOnEditorActionListener { v, actionId, event ->
+//            if(event != null && event.keyCode == KeyEvent.KEYCODE_ENTER) {
+//
+//            }
+//            true
+//        }
+
+        root.search_view_search_bar.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                searchData()
+                handler.post {
+                    root.search_swipe_refresh_layout.visibility = View.VISIBLE
+                    root.before_search_layout.visibility = View.INVISIBLE
+                }
+            }
+            false
         }
 
         return root

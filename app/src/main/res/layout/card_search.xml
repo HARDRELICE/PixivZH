@@ -6,58 +6,57 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="20dp"
+    android:layout_marginTop="10dp"
+    app:cardCornerRadius="15dp"
     app:cardElevation="0dp">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#eee"
         android:padding="0dp">
 
         <ImageView
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             android:id="@+id/image_view_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/text_view_search_title"
             android:adjustViewBounds="true"
-            android:paddingHorizontal="4dp"
+            android:paddingHorizontal="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/image_placeholder_loading" />
+            android:src="@drawable/image_placeholder_loading_square" />
 
 
-        <com.hardrelice.pixivzh.widget.RoundTextView
+        <TextView
+            app:layout_constraintTop_toTopOf="parent"
             android:id="@+id/text_view_search_title"
             android:layout_width="match_parent"
-            android:layout_height="32dp"
-            android:layout_marginHorizontal="4dp"
-            android:layout_marginTop="10dp"
-            android:paddingHorizontal="4dp"
-            android:background="@color/white"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:background="#55000000"
             android:text="rankTitle"
             android:textStyle="bold"
-            android:textColor="#555"
-            android:gravity="center"
-            android:textSize="18sp"
-            app:rtv_background="#fff"
-            app:rtv_border_top_left_radius="15dp"
-            app:rtv_border_top_right_radius="15dp"/>
+            android:textColor="@color/white"
+            android:gravity="center|top"
+            android:textSize="18sp" />
 
 
-        <com.hardrelice.pixivzh.widget.RoundTextView
+        <TextView
+            app:layout_constraintBottom_toBottomOf="parent"
             android:id="@+id/text_view_user_name_search"
             android:layout_width="match_parent"
-            android:layout_marginHorizontal="4dp"
-            android:layout_height="40dp"
+            android:layout_marginHorizontal="0dp"
+            android:layout_height="wrap_content"
+            android:lines="1"
             android:layout_below="@id/image_view_search"
-            android:background="#fff"
-            android:padding="8dp"
+            android:background="#55000000"
             android:gravity="center"
+            android:textColor="@color/white"
             android:textSize="15sp"
-            android:text="userName"
-            app:rtv_background="#fff"
-            app:rtv_border_bottom_left_radius="15dp"
-            app:rtv_border_bottom_right_radius="15dp"/>
+            android:text="userName" />
 
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>

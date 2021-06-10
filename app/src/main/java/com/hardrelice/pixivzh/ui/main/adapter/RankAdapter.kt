@@ -24,6 +24,8 @@ import com.hardrelice.pixivzh.utils.*
 import kotlinx.android.synthetic.main.card_top.view.*
 import java.io.BufferedOutputStream
 import java.io.File
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 class RankAdapter(itemList: List<RankItem>, activity: FragmentActivity) :
     RecyclerView.Adapter<RankAdapter.RankViewHolder>() {
@@ -53,7 +55,7 @@ class RankAdapter(itemList: List<RankItem>, activity: FragmentActivity) :
         Log.e("holder=======>", "${holder.layoutPosition} ${holder.adapterPosition} $position")
         val baseUri = FileHandler.getIllustFolder(illustId)
         val uri = FileHandler.getIllustFolder(illustId, "thumb.jpg")
-        val tempUri = FileHandler.getIllustFolder(illustId, "thumb_temp.jpg")
+        val tempUri = FileHandler.getIllustFolder(illustId, System.currentTimeMillis().toString()+"thumb_temp.jpg")
         FileHandler.checkDir(baseUri)
         try {
             if (!File(uri).exists()) {

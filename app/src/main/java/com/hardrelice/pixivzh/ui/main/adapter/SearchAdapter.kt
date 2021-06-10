@@ -20,6 +20,7 @@ import com.hardrelice.pixivzh.ui.main.act.ImageDetailActivity
 import com.hardrelice.pixivzh.ui.main.datatype.SearchItem
 import com.hardrelice.pixivzh.utils.*
 import kotlinx.android.synthetic.main.card_search.view.*
+import java.io.BufferedOutputStream
 import java.io.File
 
 class SearchAdapter(itemList: List<SearchItem>, activity: FragmentActivity) :
@@ -40,28 +41,33 @@ class SearchAdapter(itemList: List<SearchItem>, activity: FragmentActivity) :
     fun asyncLoadImage(
         illustId: String,
         thumbUrl: String,
-        view: View,
+        view: ImageView,
         position: Int,
         holder: SearchViewHolder,
-        ratio: Float
     ) {
-        Log.e(illustId, view.id.toString())
-        Log.e("holder=======>", "${holder.layoutPosition} ${holder.adapterPosition} $position")
         val baseUri = FileHandler.getIllustFolder(illustId)
-        val uri = FileHandler.getIllustFolder(illustId, "thumb.jpg")
+        val uri = FileHandler.getIllustFolder(illustId, "thumb_square.jpg")
+        val tempUri = FileHandler.getIllustFolder(illustId, System.currentTimeMillis().toString()+"thumb_temp.jpg")
         FileHandler.checkDir(baseUri)
-        println("$illustId ${taskList[illustId]}")
         try {
             if (!File(uri).exists()) {
-                taskList[illustId] = false
-                Requests.download(thumbUrl.replace("i.pximg.net", pximg_host), pixiv_headers, uri)
-                taskList[illustId] = true
+                Requests.download(
+                    thumbUrl.replace("i.pximg.net", pximg_host),
+                    pixiv_headers,
+                    tempUri
+                )
+                File(tempUri).inputStream().use { input ->
+                    BufferedOutputStream(File(uri).outputStream()).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                File(tempUri).delete()
             }
             if (holder.layoutPosition == position) {
-                if (taskList[illustId] == null || taskList[illustId] == true) {
+                if (File(uri).exists()) {
                     val msg = Message()
                     msg.what = UIHandler.SET_IMAGE_VIEW
-                    val detail = UIDetail(view = view, string = uri, float = ratio)
+                    val detail = UIDetail(view = view, string = uri)
                     msg.obj = detail
                     handler.sendMessage(msg)
                 }
@@ -82,7 +88,7 @@ class SearchAdapter(itemList: List<SearchItem>, activity: FragmentActivity) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
         val itemView =
-            LayoutInflater.from(parent.context).inflate(R.layout.card_top, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.card_search, parent, false)
         return SearchViewHolder(itemView)
     }
 
@@ -97,7 +103,8 @@ class SearchAdapter(itemList: List<SearchItem>, activity: FragmentActivity) :
 
         val view = holder.imageView
 
-        val ratio: Float = currentItem.width.toFloat() / currentItem.height.toFloat()
+        val trueratio: Float = currentItem.width.toFloat() / currentItem.height.toFloat()
+        val ratio: Float = 1f
         Log.e("ratio=======>", "$ratio")
         Log.e("width=======>", "${view.width}")
 
@@ -116,7 +123,7 @@ class SearchAdapter(itemList: List<SearchItem>, activity: FragmentActivity) :
         if (height==0){
 //            view.setImageResource(R.drawable.image_placeholder_loading_blank)
             view.layoutParams.height = height
-            view.setImageResource(R.drawable.image_placeholder_loading_blank)
+            view.setImageResource(R.drawable.image_placeholder_loading_square)
         } else{
             view.layoutParams.height = height
             view.setImageResource(R.color.pixiv_blue)
@@ -128,32 +135,29 @@ class SearchAdapter(itemList: List<SearchItem>, activity: FragmentActivity) :
                 currentItem.thumbUrl,
                 holder.imageView,
                 position,
-                holder,
-                ratio
+                holder
             )
         }.start()
         holder.textViewUserName.text = currentItem.userName
         holder.textViewSearchTitle.text = currentItem.title
-        holder.imageView.setOnClickListener {
-            if (System.currentTimeMillis() - lastTime > 1000) {
-                lastTime = System.currentTimeMillis()
-                context = ApplicationUtil.ApplicationContext!!
-                val uri = FileHandler.getIllustFolder(currentItem.illustId, "thumb.jpg")
-                val mIntent = Intent(context, ImageDetailActivity::class.java)
-                mIntent.putExtra("page_count", currentItem.pageCount)
-                mIntent.putExtra("position", position)
-                mIntent.putExtra("user_id", currentItem.userId)
-                mIntent.putExtra("user_name", currentItem.userName)
-                mIntent.putExtra("illust_id", currentItem.illustId)
-                mIntent.putExtra("title", currentItem.title)
-                mIntent.putExtra("ratio", ratio)
-                mIntent.putExtra("uri", uri)
-                mIntent.putExtra("thumb_url", currentItem.thumbUrl)
-                mIntent.putExtra("profile_img", currentItem.profileImg)
-                mIntent.putStringArrayListExtra("tags", currentItem.tags)
-                println(currentItem.thumbUrl)
-                context.startActivity(mIntent)
-            }
-        }
+        holder.imageView.onSingleClick({
+            context = ApplicationUtil.ApplicationContext!!
+            val uri = FileHandler.getIllustFolder(currentItem.illustId, "thumb.jpg")
+            val mIntent = Intent(context, ImageDetailActivity::class.java)
+            mIntent.putExtra("page_count", currentItem.pageCount)
+            mIntent.putExtra("position", position)
+            mIntent.putExtra("user_id", currentItem.userId)
+            mIntent.putExtra("user_name", currentItem.userName)
+            mIntent.putExtra("illust_id", currentItem.illustId)
+            mIntent.putExtra("title", currentItem.title)
+            mIntent.putExtra("width", currentItem.width.toFloat())
+            mIntent.putExtra("height", currentItem.height.toFloat())
+            mIntent.putExtra("uri", uri)
+            mIntent.putExtra("thumb_url", currentItem.thumbUrl)
+            mIntent.putExtra("profile_img", currentItem.profileImg)
+            mIntent.putStringArrayListExtra("tags", currentItem.tags)
+            println(currentItem.thumbUrl)
+            context.startActivity(mIntent)
+        })
     }
 }
