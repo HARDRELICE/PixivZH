@@ -95,7 +95,7 @@ class UIHandler(activity: Activity) : Handler(Looper.getMainLooper()) {
     override fun handleMessage(msg: Message) {
         super.handleMessage(msg)
         var uiDetail: UIDetail = msg.obj as UIDetail
-        println(Thread.currentThread().name)
+        //println(Thread.currentThread().name)
         when (msg.what) {
             RUN_ANY -> {
                 post {

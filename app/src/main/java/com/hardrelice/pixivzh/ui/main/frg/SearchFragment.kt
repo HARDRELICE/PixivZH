@@ -41,14 +41,6 @@ class SearchFragment : BaseFragment() {
     override fun setData() {
         if (!saved) {
             saved = true
-//            handler.send(
-//                UIHandler.SET_FRAGMENT,
-//                UIDetail(
-//                    view = search_recycler_view,
-//                    obj = search,
-//                    activity = this.requireActivity()
-//                )
-//            )
             handler.post {
                 val view = search_recycler_view as RecyclerView
                 view.adapter =
@@ -60,23 +52,19 @@ class SearchFragment : BaseFragment() {
     fun searchData() {
         Thread {
             setting.p = 1
-//            try {
+            try {
+                val word = getWord()
+                if (word.isEmpty()) {
+                    return@Thread
+                }
                 search = mutableListOf()
-                search.addAll(Pixiv.search(getWord(), setting))
+                search.addAll(Pixiv.search(word, setting))
                 setting.p++
-//            } catch (e: Exception) {
-//                Log.e("search",e.message.toString())
-//                handler.toast("Request timeout!")
-//            }
+            } catch (e: Exception) {
+                Log.e("search",e.message.toString())
+                handler.toast("Request timeout!")
+            }
             if (search.size != 0) {
-//                handler.send(
-//                    UIHandler.SET_FRAGMENT,
-//                    UIDetail(
-//                        view = search_recycler_view,
-//                        obj = search,
-//                        activity = this.requireActivity()
-//                    )
-//                )
                 handler.post {
                     val view = search_recycler_view as RecyclerView
                     view.adapter =
@@ -113,21 +101,14 @@ class SearchFragment : BaseFragment() {
                     root.progress_bar_search_loadmore.visibility = View.VISIBLE
                     Thread {
                         val data = Pixiv.search(getWord(), setting)
+                        Log.e("load more page","${setting.p}")
                         if (data.size != 0) {
                             println("LOADMORE")
-//                            handler.send(
-//                                UIHandler.UPDATE_FRAGMENT,
-//                                UIDetail(
-//                                    view = root.search_recycler_view,
-//                                    obj = data,
-//                                    int = search.size
-//                                )
-//                            )
                             handler.post {
                                 val view = root.search_recycler_view as RecyclerView
                                 val more = data as List<SearchItem>
-                                var adapter = view.adapter as SearchAdapter
-                                adapter!!.addRangeItem(search.size, more.size, more)
+                                val adapter = view.adapter as SearchAdapter
+                                adapter.addRangeItem(search.size, more.size, more)
                                 view.adapter!!.notifyItemRangeInserted(search.size, more.size)
                             }
                             setting.p++
@@ -206,12 +187,12 @@ class SearchFragment : BaseFragment() {
 
         root.search_view_search_bar.doOnTextChanged { text, start, before, count ->
             if (text.toString().isURLLegal()){
-                println(
-                    text.toString().replace("""\s""".toRegex(), " ").encodeURL().replace(
-                        "+",
-                        "%20"
-                    )
-                )
+//                println(
+//                    text.toString().replace("""\s""".toRegex(), " ").encodeURL().replace(
+//                        "+",
+//                        "%20"
+//                    )
+//                )
             // association
             } else {
 

@@ -115,7 +115,7 @@ object Pixiv {
             mangaUrls.regular.add(urls.regular.replace("p0", "p${pageCount.toString()}"))
             mangaUrls.original.add(urls.original.replace("p0", "p${pageCount.toString()}"))
         }
-        println(mangaUrls)
+        //println(mangaUrls)
         return mangaUrls
     }
 
@@ -139,7 +139,7 @@ object Pixiv {
             val str = jarr.get(j) as JSONObject
             ginfo.tags_.add(str.getString("tag"))
         }
-        println(ginfo)
+        //println(ginfo)
         return ginfo
     }
 
@@ -155,15 +155,15 @@ object Pixiv {
             return getIllustInfoFromLocal(pid)
         }
         try {
-            println("???")
+            //println("???")
             val res =
                 Requests.get("https://$pixiv_host/artworks/$pid", pixiv_headers) ?: return null
             val data = res.getElementById("meta-preload-data")?.attr("content") ?: return null
             saveIllustInfo(pid, data)
-            println(data)
+            //println(data)
             return parseIllustInfo(pid, data)
         } catch (e: Exception) {
-            println(e.message)
+            //println(e.message)
             return null
         }
     }
@@ -179,22 +179,22 @@ object Pixiv {
         val picDir = getIllustFolder(pid)
         val tempPath = getIllustFolder(pid, "temp.jpg")
         if (File(picPath).exists()) {
-            println("exists")
+            //println("exists")
             return true
         }
         val url: String?
         url = if (thumbUri == "") {
-            println("getInfo Start")
+            //println("getInfo Start")
             val info = getIllustInfo(pid)
-            println("getInfo End")
+            //println("getInfo End")
             info?.urls?.original
         } else {
             generateUrlsFromThumbUrl(thumbUri).original
         }
-        println("url$url")
+        //println("url$url")
         if (url != null) {
             checkDir(picDir)
-//            println(picPath)
+//            //println(picPath)
             url.let {
 //                Rq.download(url.replace("i.pximg.net", pximg_host), hashMapOf<String,String>("Host" to "www.pixiv.net","Referer" to "https://www.pixiv.net".encode()),picPath)
                 try {
@@ -213,10 +213,10 @@ object Pixiv {
                     if (!x) {
                         return false
                     }
-                    println("/")
+                    //println("/")
                     return true
                 } catch (e: Exception) {
-                    println(e.message)
+                    //println(e.message)
                 }
             }
         }
@@ -228,17 +228,17 @@ object Pixiv {
         val picDir = FileHandler.externalCacheDir().let { FileHandler.join(it, pid) }
         val picPath = FileHandler.join(picDir, "original.jpg")
         if (File(picPath).exists()) {
-            println("exists")
+            //println("exists")
             return true
         }
-        println("getInfo Start")
+        //println("getInfo Start")
         val info = getIllustInfo(pid)
-        println("getInfo End")
+        //println("getInfo End")
         val url = info?.urls?.thumb
-        println("url$url")
+        //println("url$url")
         if (url != null) {
             checkDir(picDir)
-//            println(picPath)
+//            //println(picPath)
             url.let {
                 while (true) {
                     try {
@@ -307,6 +307,7 @@ object Pixiv {
         try {
             connection.connectTimeout = 5000
             connection.readTimeout = 5000
+            connection.setRequestProperty("Cookie", cookie)
             data = connection.inputStream.bufferedReader().readText()
         } catch (e: TimeoutException) {
             handler.toast("Timeout!")
@@ -320,7 +321,7 @@ object Pixiv {
             "artworks" -> {
                 "illustManga"
             }
-            "illustration" -> {
+            "illustrations" -> {
                 "illust"
             }
             "manga" -> {
@@ -343,7 +344,7 @@ object Pixiv {
         try {
             info =
                 JSONObject(data).getJSONObject("body").getJSONObject(objName).getJSONArray("data")
-            println(info)
+            //println(info)
         } catch (e: Exception) {
             handler.toast("Request Information Incorrect!")
             return mutableListOf()
@@ -388,7 +389,7 @@ object Pixiv {
         if (content != null) {
             params["content"] = content
         }
-        println(params)
+        //println(params)
 
         val url = "https://$pixiv_host/ranking.php?".addParams(params)
         val connection = url.openVerifiedConnection()
@@ -397,12 +398,12 @@ object Pixiv {
             connection.connectTimeout = 5000
             connection.readTimeout = 5000
             res = connection.inputStream.bufferedReader().readText()
-            println(res)
+            //println(res)
         } catch (e: TimeoutException) {
             handler.toast("Timeout!")
             return mutableListOf()
         } catch (e: Exception) {
-            println(e.message)
+            //println(e.message)
             handler.toast("Unknown Exception!")
             return mutableListOf()
         }
@@ -410,7 +411,7 @@ object Pixiv {
 //        try {
 //            res = Requests.getJson(url, pixiv_headers, params) ?: return mutableListOf()
 //        } catch (e: Exception) {
-//            println(e.message)
+//            //println(e.message)
 //            return mutableListOf()
 //        }
 
@@ -457,7 +458,7 @@ object Pixiv {
             val str = jarr.get(j)
             ginfo.tags_.add(str.toString())
         }
-        println(ginfo)
+        //println(ginfo)
         return ginfo
     }
 
@@ -467,7 +468,7 @@ object Pixiv {
         try {
             res = Requests.getJson(url, pixiv_headers) ?: return mutableListOf()
         } catch (e: Exception) {
-            println(e.message)
+            //println(e.message)
             return mutableListOf()
         }
         val items = mutableListOf<CommonItem>()
@@ -491,7 +492,7 @@ object Pixiv {
                     )
                 )
             } catch (e: Exception) {
-                println(obj.toString())
+                //println(obj.toString())
             }
 
         }

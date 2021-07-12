@@ -199,7 +199,7 @@ object Requests {
         progressBarId: Int = -1
     ): Boolean {
         try {
-            println(":")
+            //println(":")
             HttpsUtil.trustEveryone()
             val conn = URL(url).openConnection() as HttpsURLConnection
             for (key in properties) {
@@ -285,7 +285,7 @@ object Requests {
                 File(tempPath).copyTo(File(filePath))
                 File(tempPath).delete()
             }
-            println(";")
+            //println(";")
             return true
         } catch (e: Exception) {
             println("download timeout")
@@ -306,7 +306,7 @@ object Requests {
         while (true) {
             var done = 0
             try {
-                println(".")
+                //println(".")
                 val conn = URL(url).openConnection() as HttpsURLConnection
                 conn.requestMethod = "GET"
                 //设置连接时间
@@ -337,7 +337,7 @@ object Requests {
                     if (flag) {
                         raf.write(buf, 0, len)
                         progress.done += len
-                        println("len $len done ${progress.done}")
+                        //println("len $len done ${progress.done}")
                         done += len
                         if (progressBarId != -1 && ((System.currentTimeMillis() - progress.lastUpdateTime))>41L) {
                             progress.lastUpdateTime = System.currentTimeMillis()
@@ -354,9 +354,9 @@ object Requests {
                 return
             } catch (e: IOException) {
                 progress.done -= done
-                println(e.message)
-                println(e.stackTrace)
-                println("Task(End at $end): retry")
+                //(e.message)
+                //println(e.stackTrace)
+                //println("Task(End at $end): retry")
             }
         }
     }

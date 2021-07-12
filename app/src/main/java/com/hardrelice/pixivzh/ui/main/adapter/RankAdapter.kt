@@ -44,15 +44,15 @@ class RankAdapter(itemList: List<RankItem>, activity: FragmentActivity) :
         val cardView: CardView = itemView.card_view_card_top
     }
 
-    fun asyncLoadImage(
+    private fun asyncLoadImage(
         illustId: String,
         thumbUrl: String,
         view: ImageView,
         position: Int,
         holder: RankViewHolder,
     ) {
-        Log.e(illustId, view.id.toString())
-        Log.e("holder=======>", "${holder.layoutPosition} ${holder.adapterPosition} $position")
+        //(illustId, view.id.toString())
+        //Log.e("holder=======>", "${holder.layoutPosition} ${holder.adapterPosition} $position")
         val baseUri = FileHandler.getIllustFolder(illustId)
         val uri = FileHandler.getIllustFolder(illustId, "thumb.jpg")
         val tempUri = FileHandler.getIllustFolder(illustId, System.currentTimeMillis().toString()+"thumb_temp.jpg")
@@ -105,7 +105,7 @@ class RankAdapter(itemList: List<RankItem>, activity: FragmentActivity) :
     }
 
     override fun onBindViewHolder(holder: RankViewHolder, position: Int) {
-        Log.e("onBindViewHolder", "$position")
+        //Log.e("onBindViewHolder", "$position")
 
         val currentItem = mutableItemList[position]
         val view = holder.imageView
@@ -122,7 +122,7 @@ class RankAdapter(itemList: List<RankItem>, activity: FragmentActivity) :
 
         view.setImageResource(R.color.pixiv_blue)
 
-        Log.e("width=======>", "${view.layoutParams.width}")
+        //Log.e("width=======>", "${view.layoutParams.width}")
         Thread {
             asyncLoadImage(
                 currentItem.illustId,

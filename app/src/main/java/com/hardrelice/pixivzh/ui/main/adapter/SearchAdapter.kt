@@ -38,7 +38,7 @@ class SearchAdapter(itemList: List<SearchItem>, activity: FragmentActivity) :
         val cardView: CardView = itemView.card_view_card_search
     }
 
-    fun asyncLoadImage(
+    private fun asyncLoadImage(
         illustId: String,
         thumbUrl: String,
         view: ImageView,
@@ -97,7 +97,7 @@ class SearchAdapter(itemList: List<SearchItem>, activity: FragmentActivity) :
     }
 
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
-        Log.e("onBindViewHolder", "$position")
+//        Log.e("onBindViewHolder", "$position")
 
         val currentItem = mutableItemList[position]
 
@@ -105,19 +105,12 @@ class SearchAdapter(itemList: List<SearchItem>, activity: FragmentActivity) :
 
         val trueratio: Float = currentItem.width.toFloat() / currentItem.height.toFloat()
         val ratio: Float = 1f
-        Log.e("ratio=======>", "$ratio")
-        Log.e("width=======>", "${view.width}")
+//        Log.e("ratio=======>", "$ratio")
+//        Log.e("width=======>", "${view.width}")
 
-        var height = (view.width / ratio).toInt()
-//        if(height == 0) {
-//            val padding = holder.cardView.paddingLeft+holder.cardView.paddingRight+holder.imageView.paddingLeft+holder.imageView.paddingRight
-//            view.layoutParams.width = screenSize[0] - padding.dp2px()
-//            height = (view.layoutParams.width/ratio).toInt()
-//            println(view.layoutParams.width)
-//            println(view.layoutParams.height)
-//        }
+        val height = (view.width / ratio).toInt()
 
-        Log.e("height=======>", "${height}")
+//        Log.e("height=======>", "${height}")
 
 
         if (height==0){
