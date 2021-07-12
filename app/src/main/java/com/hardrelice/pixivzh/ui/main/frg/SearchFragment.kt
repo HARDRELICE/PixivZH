@@ -38,6 +38,7 @@ class SearchFragment : BaseFragment() {
 
     val nav_home_view = ApplicationUtil.Activity!!.findViewById<View>(R.id.nav_home)
 
+
     override fun setData() {
         if (!saved) {
             saved = true
