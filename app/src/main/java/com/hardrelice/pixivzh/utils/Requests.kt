@@ -26,7 +26,7 @@ object Requests {
         HttpsUtil.trustEveryone()
         var res: Document? = null
         var url = url
-        for (key in params) {
+        for (key in params.keys) {
             url = "$url&$key=${params[key].toString()}"
         }
         try {
@@ -52,11 +52,11 @@ object Requests {
     ): String? {
         HttpsUtil.trustEveryone()
         var url = url
-        for (key in params) {
+        for (key in params.keys) {
             Log.e("key", "$key ${params[key]}")
             url = "$url&$key"
         }
-        Log.e("getJson", "$url")
+        Log.e("getJson", url)
         var res:String? = ""
         try {
             res = Jsoup.connect(url).headers(headers).ignoreContentType(true).execute().body() ?: null
@@ -135,60 +135,6 @@ object Requests {
         }
     }
 
-//    fun coroutineDownload(url:String, properties:HashMap<String,String>, filePath:String, chunkSize_kb: Int = 4) = runBlocking {
-//        launch {
-//            println(":")
-//            HttpsUtil.trustEveryone()
-//            val conn = URL(url).openConnection() as HttpsURLConnection
-//            for (key in properties){
-//                conn.setRequestProperty(key.toString(),properties[key.toString()].toString())
-//            }
-//            conn.setRequestProperty("Referer","https://www.pixiv.net")
-//            conn.setHostnameVerifier { _, session ->  true }
-//            conn.connectTimeout = 10000
-//            val contentLength = conn.contentLength
-//            println("code ${conn.responseCode} length $contentLength")
-//
-//            if (contentLength != -1) {
-//                val raf = RandomAccessFile(filePath, "rw")
-//                var spos: MutableList<Int> = mutableListOf()
-//                var epos: MutableList<Int> = mutableListOf()
-//                val segments: Int =
-//                        Math.ceil(conn.contentLength / 1024 / chunkSize_kb.toDouble()).toInt()
-//                println("sengments: $segments")
-//                var cursor = 0
-//                val jobs: MutableList<Job> = mutableListOf()
-//                for (segment in 0 until segments) {
-//                    if (segment == segments - 1) {
-//                        //                spos.add(cursor)
-//                        //                epos.add(contentLength)
-//                        var start = cursor
-//                        var end = contentLength
-//                        val x = launch{
-//                            println("launch")
-//                            taskDownload(url, start, end, raf, properties)
-//                        }
-//                        jobs.add(x)
-//                    } else {
-//                        //                spos.add(cursor)
-//                        //                cursor+=chunkSize_kb*1024
-//                        //                epos.add(cursor-1)
-//                        var start = cursor
-//                        cursor += chunkSize_kb * 1024
-//                        var end = cursor - 1
-//                        val x = launch{
-//                            println("launch")
-//                            taskDownload(url, start, end, raf, properties)
-//                        }
-//                        jobs.add(x)
-//                    }
-//                }
-//                for (job in jobs) job.join()
-//            }
-//            println(";")
-//        }.join()
-//    }
-
     fun threadDownload(
         url: String,
         properties: HashMap<String, String>,
@@ -201,19 +147,22 @@ object Requests {
         try {
             //println(":")
             HttpsUtil.trustEveryone()
-            val conn = URL(url).openConnection() as HttpsURLConnection
-            for (key in properties) {
-                conn.setRequestProperty(key.toString(), properties[key.toString()].toString())
+            var contentLength = -1
+            while (contentLength == -1) {
+                val conn = URL(url).openConnection() as HttpsURLConnection
+                for (key in properties) {
+                    conn.setRequestProperty(key.toString(), properties[key.toString()].toString())
+                }
+                conn.setRequestProperty("Referer", "https://www.pixiv.net")
+                conn.setHostnameVerifier { _, session -> true }
+                conn.connectTimeout = 5000
+                conn.readTimeout = 5000
+                contentLength = conn.contentLength
             }
-            conn.setRequestProperty("Referer", "https://www.pixiv.net")
-            conn.setHostnameVerifier { _, session -> true }
-            conn.connectTimeout = 5000
-            conn.readTimeout = 5000
-            val contentLength = conn.contentLength
-            println("code ${conn.responseCode} length $contentLength")
+            println("length $contentLength")
 
             if (contentLength != -1) {
-                uiHandler.post{
+                if (progressBarId!=-1) uiHandler.post{
                     uiHandler.updateProgressBar(progressBarId,0)
                 }
                 val progress = Progress(0, contentLength, System.currentTimeMillis())
@@ -221,10 +170,10 @@ object Requests {
                 raf.setLength(contentLength.toLong())
                 raf.close()
                 var segments: Int =
-                    Math.ceil(conn.contentLength / 1024 / chunkSize_kb.toDouble()).toInt()
-//                if(segments>150){
-//                    segments = 150
-//                }
+                    Math.ceil(contentLength / 1024 / chunkSize_kb.toDouble()).toInt()
+                if(segments>200){
+                    segments = 200
+                }
                 println("sengments: $segments")
                 var cursor = 0
                 val jobs: MutableList<Thread> = mutableListOf()
@@ -247,6 +196,7 @@ object Requests {
                                 progressBarId
                             )
                         }
+                        x.isDaemon = true
                         jobs.add(x)
                     } else {
                         //                spos.add(cursor)
@@ -267,6 +217,7 @@ object Requests {
                                 progressBarId
                             )
                         }
+                        x.isDaemon = true
                         jobs.add(x)
                     }
                 }
@@ -276,12 +227,14 @@ object Requests {
                 for (job in jobs) {
                     job.join()
                 }
-                val msg = Message()
-                msg.what = UIHandler.UPDATE_PROGRESS_BAR
-                val detail =
-                    UIDetail(progressBarId, int = 100)
-                msg.obj = detail
-                uiHandler.sendMessage(msg)
+                if(progressBarId!=-1) {
+                    val msg = Message()
+                    msg.what = UIHandler.UPDATE_PROGRESS_BAR
+                    val detail =
+                        UIDetail(progressBarId, int = 100)
+                    msg.obj = detail
+                    uiHandler.sendMessage(msg)
+                }
                 File(tempPath).copyTo(File(filePath))
                 File(tempPath).delete()
             }

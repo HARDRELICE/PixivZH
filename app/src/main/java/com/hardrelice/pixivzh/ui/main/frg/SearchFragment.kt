@@ -36,7 +36,7 @@ class SearchFragment : BaseFragment() {
     private var loadingMore = false
     private var setting = SearchSetting()
 
-    val nav_home_view = ApplicationUtil.Activity!!.findViewById<View>(R.id.nav_home)
+    // val nav_home_view = ApplicationUtil.Activity!!.findViewById<View>(R.id.nav_home)
 
 
     override fun setData() {

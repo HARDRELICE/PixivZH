@@ -173,33 +173,31 @@ object Pixiv {
         pid: String,
         uiHandler: UIHandler,
         progressBarId: Int,
+        page: Int = 0,
         thumbUri: String = ""
     ): Boolean {
-        val picPath = getIllustFolder(pid, "original.jpg")
+
+        val picPath = getIllustFolder(pid, "p$page.jpg")
         val picDir = getIllustFolder(pid)
-        val tempPath = getIllustFolder(pid, "temp.jpg")
+        val tempPath = getIllustFolder(pid, "temp$page.jpg")
         if (File(picPath).exists()) {
             //println("exists")
             return true
         }
-        val url: String?
-        url = if (thumbUri == "") {
-            //println("getInfo Start")
+        val url: String? = if (thumbUri == "") {
             val info = getIllustInfo(pid)
-            //println("getInfo End")
             info?.urls?.original
         } else {
             generateUrlsFromThumbUrl(thumbUri).original
         }
-        //println("url$url")
         if (url != null) {
             checkDir(picDir)
-//            //println(picPath)
-            url.let {
-//                Rq.download(url.replace("i.pximg.net", pximg_host), hashMapOf<String,String>("Host" to "www.pixiv.net","Referer" to "https://www.pixiv.net".encode()),picPath)
+            val newUrl = url.replace("_p0","_p${page}")
+            println(newUrl)
+            newUrl.let {
                 try {
                     val x = Requests.threadDownload(
-                        url.replace("i.pximg.net", pximg_host),
+                        it.replace("i.pximg.net", pximg_host),
                         hashMapOf(
                             "Host" to "www.pixiv.net",
                             "Referer" to "https://www.pixiv.net".encode()
@@ -223,10 +221,53 @@ object Pixiv {
         return false
     }
 
+    // 通过url下载图片
+    fun getIllustImageByURL(
+        pid: String,
+        url: String,
+        uiHandler: UIHandler,
+        progressBarId: Int,
+        page: Int = 0
+    ): Boolean {
+        val picPath = getIllustFolder(pid, "p$page.jpg")
+        val picDir = getIllustFolder(pid)
+        val tempPath = getIllustFolder(pid, "temp$page.jpg")
+        if (File(picPath).exists()) {
+            println("exists")
+            return true
+        }
+        println("url$url")
+        checkDir(picDir)
+        url.replace("_p0", "_p${page}").let {
+            try {
+                val x = Requests.threadDownload(
+                    it.replace("i.pximg.net", pximg_host),
+                    hashMapOf(
+                        "Host" to "www.pixiv.net",
+                        "Referer" to "https://www.pixiv.net".encode()
+                    ),
+                    picPath,
+                    tempPath,
+                    16,
+                    uiHandler,
+                    progressBarId
+                )
+                if (!x) {
+                    return false
+                }
+                println("/")
+                return true
+            } catch (e: Exception) {
+                println(e.message)
+            }
+        }
+        return false
+    }
+
     // 多线程下载original图片
     fun getIllustImageThumb(pid: String): Boolean {
         val picDir = FileHandler.externalCacheDir().let { FileHandler.join(it, pid) }
-        val picPath = FileHandler.join(picDir, "original.jpg")
+        val picPath = FileHandler.join(picDir, "p0.jpg")
         if (File(picPath).exists()) {
             //println("exists")
             return true

@@ -1,5 +1,6 @@
 package com.hardrelice.pixivzh
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -10,6 +11,7 @@ import java.io.BufferedOutputStream
 import java.io.File
 
 
+@SuppressLint("StaticFieldLeak")
 object FileHandler {
     lateinit var context: Context
 

@@ -18,7 +18,7 @@
         tools:replace="android:theme">
         <activity
             android:name=".ui.main.act.ImageDetailActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.main.act.SearchDetailActivity"
             android:screenOrientation="portrait" />

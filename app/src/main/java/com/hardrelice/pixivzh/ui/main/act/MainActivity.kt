@@ -45,10 +45,10 @@ class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
 //        R.color.pixiv_blue.setStatusBarColor(this)
         when {
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R -> {
-    //            window.decorView.windowInsetsController?.setSystemBarsAppearance(
-    //                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
-    //                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-    //            )
+                //            window.decorView.windowInsetsController?.setSystemBarsAppearance(
+                //                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                //                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                //            )
                 val wic = ViewCompat.getWindowInsetsController(window.decorView)
                 wic?.isAppearanceLightNavigationBars = false
             }
@@ -64,6 +64,7 @@ class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
         val title = resources.getStringArray(R.array.title)
         val selectIds = resources.obtainTypedArray(R.array.select)
         val unselectIds = resources.obtainTypedArray(R.array.unselect)
+
         for (i: Int in title.indices) {
             titleTabs.add(
                 TitleModel(
@@ -73,6 +74,10 @@ class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
                 )
             )
         }
+
+        selectIds.recycle()
+        unselectIds.recycle()
+
         fragments.add(HomeFragment())
         fragments.add(RankFragment())
         fragments.add(SearchFragment())

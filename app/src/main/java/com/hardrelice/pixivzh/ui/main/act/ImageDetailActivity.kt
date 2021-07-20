@@ -4,11 +4,9 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
 import android.os.Message
-import android.util.DisplayMetrics
+import android.os.SystemClock
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.webkit.WebView
 import android.widget.ImageView
 import android.widget.Toast
@@ -29,24 +27,40 @@ import java.io.File
 
 class ImageDetailActivity : Activity() {
     var handler = UIHandler(this)
-    lateinit var view: ImageView
-    var downloaded = false
-    var downloading = false
+    lateinit var firstView: ImageView
+    var downloaded = hashMapOf<Int, Boolean>()
+    var downloading = hashMapOf<Int, Boolean>()
+
+    lateinit var illustId: String
+    lateinit var illustTitle: String
+    lateinit var userId: String
+    lateinit var userName: String
+    var picWidth: Float = 0f
+    var picHeight: Float = 0f
+    var ratio: Float = 1f
+    lateinit var thumbUri: String
+    lateinit var thumbUrl: String
+    lateinit var profileImg: String
+    lateinit var tags: MutableList<*>
+    var pageCount: Int = 0
+    lateinit var originalUri: String
+
     fun setImage(
         view: ImageView,
         pid: String,
         uri: String,
         ratio: Float,
         progressBarId: Int,
-        thumbUrl: String
+        thumbUrl: String,
+        page:Int = 0
     ) {
-        if (downloading) return
-        downloading = true
+        if (downloading[page] == true) return
+        downloading[page] = true
         handler.post {
             view.setImageResource(R.color.pixiv_blue)
         }
-        downloaded = Pixiv.getIllustImage(pid, handler, progressBarId)
-        if (downloaded) {
+        downloaded[page] = Pixiv.getIllustImage(pid, handler, progressBarId, page)
+        if (downloaded[page] == true) {
             val msg = Message()
             msg.what = UIHandler.SET_IMAGE
             val detail = UIDetail(view = view, string = uri, float = ratio)
@@ -58,11 +72,11 @@ class ImageDetailActivity : Activity() {
                 view.setImageResource(R.color.inactive_grey)
             }
         }
-        downloading = false
+        downloading[page] = false
     }
 
     fun setInfo(pid: String) {
-        var runnable = Runnable {
+        handler.post {
             progress_bar_image_detail_get_info.visibility = View.VISIBLE
             web_view_image_detail_comment.settings.defaultTextEncodingName = "UTF -8"
             web_view_image_detail_comment.loadDataWithBaseURL(
@@ -73,14 +87,10 @@ class ImageDetailActivity : Activity() {
                 null
             )
         }
-        val detail = UIDetail(runnable = runnable)
-        handler.send(
-            UIHandler.RUN_ANY,
-            detail
-        )
+
         val info = Pixiv.getIllustInfo(pid)
         if (info != null) {
-            runnable = Runnable {
+            handler.post {
                 progress_bar_image_detail_get_info.visibility = View.INVISIBLE
                 web_view_image_detail_comment.loadDataWithBaseURL(
                     null,
@@ -91,119 +101,55 @@ class ImageDetailActivity : Activity() {
                 )
                 web_view_image_detail_comment.scrollY = WebView.SCROLL_AXIS_NONE
                 text_view_image_detail_date.text = info.createDate
-                text_view_image_detail_view_count.text = "${info.viewCount} views"
+                "${info.viewCount} views".also { text_view_image_detail_view_count.text = it }
             }
-            val detail = UIDetail(runnable = runnable)
-            handler.send(
-                UIHandler.RUN_ANY,
-                detail
-            )
-        }
-    }
-
-    @SuppressLint("SetJavaScriptEnabled")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        println(intent.extras?.getString("user_name"))
-        val illustId = intent.extras?.getString("illust_id") as String
-        val illustTitle = intent.extras?.getString("title") as String
-        val userId = intent.extras?.getString("user_id") as String
-        val userName = intent.extras?.getString("user_name") as String
-        val picWidth = intent.extras?.getFloat("width") as Float
-        val picHeight = intent.extras?.getFloat("height") as Float
-        val ratio = picWidth / picHeight
-        val thumbUri = intent.extras?.getString("uri") as String
-        val thumbUrl = intent.extras?.getString("thumb_url") as String
-        val profileImg = intent.extras?.getString("profile_img") as String
-        val tags = intent.extras?.getStringArrayList("tags") as MutableList<*>
-        val pageCount = intent.extras?.getInt("page_count") as Int
-        println(thumbUrl)
-        val originalUri = FileHandler.getIllustFolder(illustId as String, "original.jpg")
-
-        setContentView(R.layout.activity_image_detail)
-
-//        R.color.pixiv_blue.setStatusBarColor(this)
-        toolbar_image_detail.setBackgroundColor(R.color.pixiv_blue.getColor())
-
-        toolbar_image_detail.setNavigationOnClickListener {
-            this.finish()
-        }
-        floating_action_button_save_image.setOnClickListener {
-            if (downloaded && File(originalUri).exists()) {
-                FileHandler.writeFileToStorage(originalUri, "Pictures/pixivzh", "$illustId.jpg")
-                FileHandler.refreshMediaStore(FileHandler.storage("Pictures/pixivzh/$illustId.jpg"))
-                Toast.makeText(ApplicationUtil.ApplicationContext, "Saved!", Toast.LENGTH_SHORT)
-                    .show()
-            } else {
-                Toast.makeText(
-                    this,
-                    "Downloading...",
-                    Toast.LENGTH_SHORT
-                ).show()
-                Thread {
-                    setImage(
-                        view,
-                        illustId,
-                        originalUri,
-                        ratio,
-                        progress_bar_image_detail.id,
-                        thumbUrl
-                    )
-                }.start()
-            }
-        }
-
-        view = findViewById(R.id.image_view_image_detail)
-        view.setImageResource(R.color.pixiv_blue)
-        var width = 0
-        var height = 0
-        view.post {
-            width = view.width
-            height = (width / ratio).toInt()
-            view.layoutParams.height = height
-            Log.e("Width", width.toString())
-        }
-        toolbar_image_detail.title = illustTitle
-        toolbar_image_detail.subtitle = userName
-        text_view_image_detail_title.text = illustTitle
-        text_view_image_detail_pid.text = illustId
-        text_view_image_detail_uid.text = userId
-        text_view_image_detail_user_name.text = userName
-        text_view_image_detail_tags.text = tags.toString()
-        Thread {
-            val profileUri = FileHandler.getUserFolder(userId, "profile.jpg")
-            if (!File(profileUri).exists()) {
-                Requests.download(
-                    profileImg.replace("i.pximg.net", pximg_host),
-                    pixiv_headers,
-                    profileUri
-                )
-            }
-            handler.send(UIHandler.RUN_ANY, UIDetail(runnable = {
-//                image_button_image_detail_user_profile.setImageURI(profileUri.toUri())
-                Glide.with(applicationContext).load(profileUri).into(
-                    image_button_image_detail_user_profile
-                )
-            }))
-        }.start()
-
-        Thread {
+            //progress_bar_image_detail.id
             setImage(
-                view,
+                firstView,
                 illustId,
                 originalUri,
                 ratio,
                 progress_bar_image_detail.id,
                 thumbUrl
             )
-        }.start()
-        Thread {
-            setInfo(illustId)
-        }.start()
+            handler.post {
+                setSCL(firstView, 0)
+            }
+            loadMoreImage(info, pid)
+        }
+    }
 
+    fun loadMoreImage(info: Pixiv.IllustInfo, pid: String) {
+        if (info.pageCount > 1) {
+            Log.e("PAGECOUNT>1!!!!!!!!!", info.pageCount.toString())
+            val url = info.urls?.original as String
+            val imageViews = hashMapOf<Int, ImageView>()
+            for (i in 1 until info.pageCount) {
+                val imageView = ImageView(this)
+                val lp =
+                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, firstView.height)
+                handler.post {
+                    imageView.layoutParams = lp
+                    imageView.setImageResource(R.color.pixiv_blue)
+                    moreImageLayout.addView(imageView)
+                }
+                imageViews[i] = imageView
+            }
+            for (i in 1 until info.pageCount){
+                val picPath = FileHandler.getIllustFolder(pid, "p$i.jpg")
+                setImage(imageViews[i]!!, pid, picPath, ratio,-1, "", i)
+                Log.e("page","$i")
+                handler.post {
+                    setSCL(imageViews[i]!!, i)
+                }
+            }
+        }
+    }
 
+    @SuppressLint("SetJavaScriptEnabled")
+    fun setSCL(view: ImageView, page: Int){
         view.onSingleClick({
-            if (!downloaded) return@onSingleClick
+            if (downloaded[page]!=true) return@onSingleClick
             val inflater = LayoutInflater.from(this)
             val imgEntryView: View =
                 inflater.inflate(R.layout.dialog_photo_entry, null) // 加载自定义的布局文件
@@ -217,12 +163,6 @@ class ImageDetailActivity : Activity() {
             dialog.window!!.decorView.setPadding(0, 0, 0, 0)
             dialog.window!!.decorView.background = R.color.transparent.toDrawable()
             dialog.window!!.setLayout(screenSize[0], screenSize[1])
-
-            Log.e("url", originalUri)
-            println("screenSize$screenSize")
-            println("density${DisplayMetrics().density}")
-//            val htmlHeight=(screenSize[0]/picWidth*picHeight).toInt().px2dp().toInt()
-//            println(htmlHeight)
             val data = """
             <!DOCTYPE html>
             <html>
@@ -258,7 +198,7 @@ class ImageDetailActivity : Activity() {
             </head>
             <body style="padding: 0;margin: 0;background-color:black;">
             		<div class="ui-flex justify-center center" style="width: 100%;height: ${screenSize[1]}dpi;">
-            				<img  src="file:///$originalUri" style="width:100%;">
+            				<img  src="file:///${FileHandler.getIllustFolder(illustId, "p$page.jpg")}" style="width:100%;">
             		</div>
             </body>
             <script type="text/javascript">
@@ -277,28 +217,141 @@ class ImageDetailActivity : Activity() {
             </script>
             </html>
             """.trimIndent()
-
             dialog.show()
             val img = imgEntryView.large_image
             img.webViewClient = ImageDialogWebViewClient(img)
             handler.post {
-//                handler.setImage(img, originalUri, ratio)
                 img.settings.setSupportZoom(true)
                 img.settings.useWideViewPort = true
                 img.settings.builtInZoomControls = true
                 img.settings.displayZoomControls = false
                 img.settings.javaScriptEnabled = true
+                img.settings.allowFileAccess = true
+                img.settings.allowContentAccess = true
                 img.setInitialScale(25)
                 img.loadDataWithBaseURL(null, data, "text/html", "UTF-8", null)
             }
-            img.setOnClickListener {
-                dialog.cancel()
+
+            img.setOnLongClickListener {
+                FileHandler.writeFileToStorage(FileHandler.getIllustFolder(illustId, "p$page.jpg"), "Pictures/pixivzh", "$illustId-$page.jpg")
+                FileHandler.refreshMediaStore(FileHandler.storage("Pictures/pixivzh/$illustId-$page.jpg"))
+                Toast.makeText(ApplicationUtil.ApplicationContext, "Saved!", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnLongClickListener true
             }
             imgEntryView.setOnClickListener {
                 dialog.cancel()
             }
         })
+    }
 
+    @SuppressLint("SetJavaScriptEnabled")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        println(intent.extras?.getString("user_name"))
+        illustId = intent.extras?.getString("illust_id") as String
+        illustTitle = intent.extras?.getString("title") as String
+        userId = intent.extras?.getString("user_id") as String
+        userName = intent.extras?.getString("user_name") as String
+        picWidth = intent.extras?.getFloat("width") as Float
+        picHeight = intent.extras?.getFloat("height") as Float
+        ratio = picWidth / picHeight
+        thumbUri = intent.extras?.getString("uri") as String
+        thumbUrl = intent.extras?.getString("thumb_url") as String
+        profileImg = intent.extras?.getString("profile_img") as String
+        tags = intent.extras?.getStringArrayList("tags") as MutableList<*>
+        pageCount = intent.extras?.getInt("page_count") as Int
+        originalUri = FileHandler.getIllustFolder(illustId, "p0.jpg")
 
+        setContentView(R.layout.activity_image_detail)
+
+        toolbar_image_detail.setBackgroundColor(R.color.pixiv_blue.getColor())
+
+        toolbar_image_detail.setNavigationOnClickListener {
+            this.finish()
+        }
+//        floating_action_button_save_image.setOnClickListener {
+//            if (downloaded && File(originalUri).exists()) {
+//                FileHandler.writeFileToStorage(originalUri, "Pictures/pixivzh", "$illustId.jpg")
+//                FileHandler.refreshMediaStore(FileHandler.storage("Pictures/pixivzh/$illustId.jpg"))
+//                Toast.makeText(ApplicationUtil.ApplicationContext, "Saved!", Toast.LENGTH_SHORT)
+//                    .show()
+//            } else {
+//                Toast.makeText(
+//                    this,
+//                    "Downloading...",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//                Thread {
+//                    setImage(
+//                        view,
+//                        illustId,
+//                        originalUri,
+//                        ratio,
+//                        progress_bar_image_detail.id,
+//                        thumbUrl
+//                    )
+//                }.let {
+//                    it.isDaemon = true
+//                    it.start()
+//                }
+//            }
+//        }
+
+        firstView = findViewById(R.id.image_view_image_detail)
+        firstView.setImageResource(R.color.pixiv_blue)
+        var width = 0
+        var height = 0
+        firstView.post {
+            width = firstView.width
+            height = (width / ratio).toInt()
+            firstView.layoutParams.height = height
+            Log.e("Width", width.toString())
+        }
+        toolbar_image_detail.title = illustTitle
+        toolbar_image_detail.subtitle = userName
+        text_view_image_detail_title.text = illustTitle
+        text_view_image_detail_pid.text = illustId
+        text_view_image_detail_uid.text = userId
+        text_view_image_detail_user_name.text = userName
+        text_view_image_detail_tags.text = tags.toString()
+        Thread {
+            val profileUri = FileHandler.getUserFolder(userId, "profile.jpg")
+            if (!File(profileUri).exists()) {
+                Requests.download(
+                    profileImg.replace("i.pximg.net", pximg_host),
+                    pixiv_headers,
+                    profileUri
+                )
+            }
+            handler.post {
+                Glide.with(applicationContext).load(profileUri).into(
+                    image_button_image_detail_user_profile
+                )
+            }
+        }.let {
+            it.isDaemon = true
+            it.start()
+        }
+
+//        Thread {
+//            setImage(
+//                view,
+//                illustId,
+//                originalUri,
+//                ratio,
+//                progress_bar_image_detail.id,
+//                thumbUrl
+//            )
+//        }.let {
+//            it.isDaemon = true
+//            it.start()
+//        }
+        Thread {
+            setInfo(illustId)
+        }.let {
+            it.isDaemon = true
+            it.start()
+        }
     }
 }

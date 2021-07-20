@@ -33,10 +33,9 @@ class RankFragment : BaseFragment() {
     private var loadingMore = false
 
     override fun setData() {
-        if (!saved) {
+        if (!saved&&::root.isInitialized) {
             saved = true
             p = 1
-//            progress_bar_rank_refresh.visibility = View.VISIBLE
             root.rank_swipe_refresh_layout.isRefreshing = true
             root.tab_rank_type.getTabAt(0)?.view?.isEnabled = false
             root.tab_rank_type.getTabAt(1)?.view?.isEnabled = false
@@ -88,7 +87,7 @@ class RankFragment : BaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         viewModel = ViewModelProvider(this).get(RankViewModel::class.java)
         root = inflater.inflate(R.layout.fragment_rank, container, false)
         root.rank_recycler_view.adapter = RankAdapter(rank, this.requireActivity())

@@ -15,6 +15,7 @@ import androidx.core.net.toUri
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.hardrelice.pixiver.UIDetail
@@ -66,11 +67,14 @@ class UIHandler(activity: Activity) : Handler(Looper.getMainLooper()) {
             val drawableCrossFadeFactory =
                 DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
             Glide.with(activity.applicationContext)
+                .asDrawable()
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .load(imgPath)
                 .transition(DrawableTransitionOptions.with(drawableCrossFadeFactory))
                 .into(view)
         } catch (e: Exception) {
-            Log.e("SetImage", "glide exception")
+            Log.e("SetImage", "Glide exception")
         }
     }
 
