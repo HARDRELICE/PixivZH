@@ -2,8 +2,10 @@ package com.hardrelice.pixivzh.utils
 
 import android.app.Activity
 import android.content.ContextWrapper
+import android.content.SharedPreferences
 import android.os.SystemClock
 import android.view.View
+import androidx.preference.Preference
 import com.hardrelice.pixivzh.HttpsUtil
 import com.hardrelice.pixivzh.R
 import java.net.URL
@@ -21,6 +23,7 @@ val cookie = "first_visit_datetime_pc=2021-02-04+11%3A45%3A36; p_ab_id=3; p_ab_i
 
 lateinit var handler: UIHandler
 lateinit var screenSize:List<Int>
+lateinit var preference: SharedPreferences
 
 fun String.encode(encode: String = "utf-8")=java.net.URLEncoder.encode(this, encode)
 

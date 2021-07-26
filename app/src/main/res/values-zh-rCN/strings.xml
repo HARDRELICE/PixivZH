@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PixivZH</string>
+    <string name="loading">加载中……</string>
+    <string name="tab_item_rank_daily">日榜</string>
+    <string name="tab_item_rank_weekly">周榜</string>
+    <string name="tab_item_rank_monthly">月榜</string>
+    <string name="tab_item_rank_rookie">新人</string>
+    <string name="tab_item_rank_original">原创</string>
+    <string name="tab_item_rank_male">男性</string>
+    <string name="tab_item_rank_female">女性</string>
+    <string name="text_view_image_detail_description">简介</string>
+    <string name="text_view_image_detail_title">标题</string>
+    <string name="text_view_image_detail_tags">标签</string>
+    <string name="use_cookies">使用Cookies</string>
+    <string name="use_cookies_summary">获取个性化信息</string>
+    <string name="use_cookies_text">输入你的Cookies</string>
+    <string name="personalization_setting">个性化</string>
+    <string name="auto_load_more_pics">自动加载更多图片</string>
+    <string name="customization_setting">定制</string>
+    <string name="using_saved_illust_info">使用已经储存的插画信息</string>
+    <string name="using_saved_illust_info_summary">不勾选此项，每次打开插画都会更新插画信息</string>
+    <string name="date">日期</string>
+    <string name="view_count">浏览量</string>
+    <string name="load_more_pics">加载更多</string>
+    <string name="retract_more_pics">收起</string>
+    <string name="settings">设置</string>
+    <string name="saved">已保存</string>
+</resources>

@@ -3,10 +3,10 @@ package com.hardrelice.pixivzh.ui.main.act
 import android.util.Log
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import androidx.viewpager.widget.ViewPager
 import com.flyco.tablayout.listener.CustomTabEntity
 import com.flyco.tablayout.listener.OnTabSelectListener
-import com.hardrelice.pixivzh.utils.UIHandler
 import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.base.BaseActivity
 import com.hardrelice.pixivzh.mvp.view.BaseFragment
@@ -18,9 +18,7 @@ import com.hardrelice.pixivzh.ui.main.frg.SearchFragment
 import com.hardrelice.pixivzh.ui.main.model.TitleModel
 import com.hardrelice.pixivzh.ui.main.presenter.MainPresenter
 import com.hardrelice.pixivzh.ui.main.view.MainView
-import com.hardrelice.pixivzh.utils.ApplicationUtil
-import com.hardrelice.pixivzh.utils.handler
-import com.hardrelice.pixivzh.utils.screenSize
+import com.hardrelice.pixivzh.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
@@ -34,21 +32,11 @@ class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
         ApplicationUtil.initial(this)
         screenSize = screenSize()
         handler = UIHandler(this)
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-//            window.statusBarColor = resources.getColor(
-//                R.color.pixiv_blue_variant_transparent,
-//                theme
-//            )
-//        } else {
-//            window.statusBarColor = resources.getColor(R.color.pixiv_blue_variant_transparent)
-//        }
-//        R.color.pixiv_blue.setStatusBarColor(this)
+        preference = PreferenceManager.getDefaultSharedPreferences(this)
+//        property = Property("pixivzh.config", this)
+
         when {
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R -> {
-                //            window.decorView.windowInsetsController?.setSystemBarsAppearance(
-                //                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
-                //                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-                //            )
                 val wic = ViewCompat.getWindowInsetsController(window.decorView)
                 wic?.isAppearanceLightNavigationBars = false
             }
@@ -59,7 +47,6 @@ class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
 //                window.statusBarColor = resources.getColor(R.color.white)
             }
         }
-
 
         val title = resources.getStringArray(R.array.title)
         val selectIds = resources.obtainTypedArray(R.array.select)
@@ -94,8 +81,10 @@ class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
 
             override fun onPageSelected(position: Int) {
                 nav_home.currentTab = position
-                val frg = fragments.get(position) as BaseFragment
-                frg.setData()
+                if (position!=3) {
+                    val frg = fragments.get(position) as BaseFragment
+                    frg.setData()
+                }
             }
 
             override fun onPageScrollStateChanged(state: Int) {
@@ -106,45 +95,16 @@ class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
         nav_home.setOnTabSelectListener(object : OnTabSelectListener {
             override fun onTabSelect(position: Int) {
                 vp_home.currentItem = position
-                val frg = fragments[position] as BaseFragment
-                frg.setData()
+                if (position!=3) {
+                    val frg = fragments[position] as BaseFragment
+                    frg.setData()
+                }
             }
 
             override fun onTabReselect(position: Int) {
             }
 
         })
-
-//        val position = IntArray(2)
-//        nav_home.getLocationOnScreen(position)
-//        nav_home.postDelayed({println("getLocationOnScreen:${position[0]},${position[1]}")},10000)
-//
-
-//        var navHomePosOriginal:Int = -1
-//
-//        nav_home.post{
-//            val position = IntArray(2)
-//            nav_home.getLocationOnScreen(position)
-//            navHomePosOriginal = position[1]
-//        }
-
-//        nav_home.viewTreeObserver.addOnGlobalLayoutListener(object :
-//            OnGlobalLayoutListener {
-//            override fun onGlobalLayout() {
-////                nav_home.viewTreeObserver.removeOnGlobalLayoutListener(this)
-//                val rect = Rect()
-//                nav_home.getWindowVisibleDisplayFrame(rect)
-//                val position = IntArray(2)
-//                nav_home.getLocationOnScreen(position)
-//                val posY = position[1]
-//
-//                if (posY == navHomePosOriginal || navHomePosOriginal == -1 || posY == 0) {
-//                    nav_home.post { nav_home.visibility = View.VISIBLE }
-//                } else {
-//                    nav_home.visibility = View.GONE
-//                }
-//            }
-//        })
 
     }
 

@@ -19,13 +19,13 @@ object Requests {
     )
 
     fun get(
-        url: String,
+        getUrl: String,
         headers: Map<String, String>,
         params: HashMap<String, Any?> = hashMapOf()
     ): Document? {
         HttpsUtil.trustEveryone()
         var res: Document? = null
-        var url = url
+        var url = getUrl
         for (key in params.keys) {
             url = "$url&$key=${params[key].toString()}"
         }
@@ -46,12 +46,12 @@ object Requests {
     }
 
     fun getJson(
-        url: String,
+        jsonUrl: String,
         headers: Map<String, String>,
         params: HashMap<String, Any?> = hashMapOf()
     ): String? {
         HttpsUtil.trustEveryone()
-        var url = url
+        var url = jsonUrl
         for (key in params.keys) {
             Log.e("key", "$key ${params[key]}")
             url = "$url&$key"
@@ -80,7 +80,6 @@ object Requests {
     fun download(url: String, properties: Map<String, String>, filePath: String) {
         while (true) {
             HttpsUtil.trustEveryone()
-//        SSLContextSecurity.createIgnoreVerifySSL("SSL")
             val conn = URL(url).openConnection() as HttpsURLConnection
             for (key in properties) {
                 conn.setRequestProperty(key.toString(), properties[key.toString()].toString())
@@ -100,7 +99,7 @@ object Requests {
             } catch (e: Exception) {
                 Log.e("download", e.message!!)
             } finally {
-                conn?.disconnect()
+                conn.disconnect()
             }
         }
     }
@@ -112,7 +111,7 @@ object Requests {
         val buffer = ByteArray(1024 * 4)
         var sum: Long = 0
         var len = 0
-        var off = 0
+        val off = 0
         for (key in properties) {
             conn.setRequestProperty(key.toString(), properties[key.toString()].toString())
         }
@@ -131,7 +130,7 @@ object Requests {
             println("wrong")
             e.printStackTrace()
         } finally {
-            conn?.disconnect()
+            conn.disconnect()
         }
     }
 
@@ -145,7 +144,6 @@ object Requests {
         progressBarId: Int = -1
     ): Boolean {
         try {
-            //println(":")
             HttpsUtil.trustEveryone()
             var contentLength = -1
             while (contentLength == -1) {
@@ -155,8 +153,8 @@ object Requests {
                 }
                 conn.setRequestProperty("Referer", "https://www.pixiv.net")
                 conn.setHostnameVerifier { _, session -> true }
-                conn.connectTimeout = 5000
-                conn.readTimeout = 5000
+                conn.connectTimeout = 10000
+                conn.readTimeout = 10000
                 contentLength = conn.contentLength
             }
             println("length $contentLength")
@@ -171,19 +169,13 @@ object Requests {
                 raf.close()
                 var segments: Int =
                     Math.ceil(contentLength / 1024 / chunkSize_kb.toDouble()).toInt()
-                if(segments>200){
-                    segments = 200
-                }
                 println("sengments: $segments")
                 var cursor = 0
                 val jobs: MutableList<Thread> = mutableListOf()
-//            val percent:Float = 100F/segments
                 for (segment in 0 until segments) {
                     if (segment == segments - 1) {
-                        //                spos.add(cursor)
-                        //                epos.add(contentLength)
-                        var start = cursor
-                        var end = contentLength
+                        val start = cursor
+                        val end = contentLength
                         val x = Thread {
                             taskDownload(
                                 url,
@@ -196,15 +188,11 @@ object Requests {
                                 progressBarId
                             )
                         }
-                        x.isDaemon = true
                         jobs.add(x)
                     } else {
-                        //                spos.add(cursor)
-                        //                cursor+=chunkSize_kb*1024
-                        //                epos.add(cursor-1)
-                        var start = cursor
+                        val start = cursor
                         cursor += chunkSize_kb * 1024
-                        var end = cursor - 1
+                        val end = cursor - 1
                         val x = Thread {
                             taskDownload(
                                 url,
@@ -217,7 +205,6 @@ object Requests {
                                 progressBarId
                             )
                         }
-                        x.isDaemon = true
                         jobs.add(x)
                     }
                 }
@@ -230,15 +217,13 @@ object Requests {
                 if(progressBarId!=-1) {
                     val msg = Message()
                     msg.what = UIHandler.UPDATE_PROGRESS_BAR
-                    val detail =
-                        UIDetail(progressBarId, int = 100)
+                    val detail = UIDetail(progressBarId, int = 100)
                     msg.obj = detail
                     uiHandler.sendMessage(msg)
                 }
                 File(tempPath).copyTo(File(filePath))
                 File(tempPath).delete()
             }
-            //println(";")
             return true
         } catch (e: Exception) {
             println("download timeout")
@@ -259,13 +244,10 @@ object Requests {
         while (true) {
             var done = 0
             try {
-                //println(".")
                 val conn = URL(url).openConnection() as HttpsURLConnection
                 conn.requestMethod = "GET"
-                //设置连接时间
-                conn.connectTimeout = 5000
-                conn.readTimeout = 5000
-                //在请求头中封装客户端所需要的数据
+                conn.connectTimeout = 10000
+                conn.readTimeout = 10000
                 conn.setRequestProperty("range", "bytes=$start-$end")
                 for (key in properties) {
                     conn.setRequestProperty(key.toString(), properties[key.toString()].toString())
@@ -273,24 +255,18 @@ object Requests {
                 conn.setRequestProperty("Referer", "https://www.pixiv.net")
                 conn.setHostnameVerifier { _, session -> true }
                 val raf = RandomAccessFile(filePath, "rws")
-                var inputStream = conn.inputStream
-                //创建文件
-                //跳到指定位置
+                val inputStream = conn.inputStream
                 raf.seek(start.toLong())
-                var len = -1
-                //设定缓冲区
-                var buf = ByteArray(1024)
+                var len: Int
+                val buf = ByteArray(1024)
                 var flag = true
                 while (flag) {
-                    //读取数据，返回下标
                     len = inputStream.read(buf)
                     //TODO 可以在此处记录下载文件的坐标，从而实现断点下载
                     flag = len != -1
-                    //写数据
                     if (flag) {
                         raf.write(buf, 0, len)
                         progress.done += len
-                        //println("len $len done ${progress.done}")
                         done += len
                         if (progressBarId != -1 && ((System.currentTimeMillis() - progress.lastUpdateTime))>41L) {
                             progress.lastUpdateTime = System.currentTimeMillis()
@@ -308,7 +284,6 @@ object Requests {
             } catch (e: IOException) {
                 progress.done -= done
                 //(e.message)
-                //println(e.stackTrace)
                 //println("Task(End at $end): retry")
             }
         }

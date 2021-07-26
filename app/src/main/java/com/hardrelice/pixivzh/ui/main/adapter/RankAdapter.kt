@@ -2,6 +2,7 @@ package com.hardrelice.pixivzh.ui.main.adapter
 
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.os.Message
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,22 +11,20 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.core.graphics.drawable.toDrawable
+import androidx.core.app.BundleCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.hardrelice.pixiver.UIDetail
-import com.hardrelice.pixivzh.utils.UIHandler
 import com.hardrelice.pixivzh.FileHandler
 import com.hardrelice.pixivzh.R
-import com.hardrelice.pixivzh.utils.Requests
 import com.hardrelice.pixivzh.ui.main.act.ImageDetailActivity
 import com.hardrelice.pixivzh.ui.main.datatype.RankItem
 import com.hardrelice.pixivzh.utils.*
 import kotlinx.android.synthetic.main.card_top.view.*
 import java.io.BufferedOutputStream
 import java.io.File
-import java.time.LocalDate
-import java.time.LocalDateTime
+
 
 class RankAdapter(itemList: List<RankItem>, activity: FragmentActivity) :
     RecyclerView.Adapter<RankAdapter.RankViewHolder>() {
@@ -154,6 +153,7 @@ class RankAdapter(itemList: List<RankItem>, activity: FragmentActivity) :
             mIntent.putExtra("profile_img", currentItem.profileImg)
             mIntent.putStringArrayListExtra("tags", currentItem.tags)
             println(currentItem.thumbUrl)
+            val mBundle = Bundle()
             context.startActivity(mIntent)
         })
     }

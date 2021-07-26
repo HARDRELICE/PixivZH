@@ -1,6 +1,7 @@
 package com.hardrelice.pixivzh.utils
 
 import android.util.Log
+import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.hardrelice.pixivzh.FileHandler
 import com.hardrelice.pixivzh.FileHandler.checkDir
@@ -84,21 +85,22 @@ object Pixiv {
     fun generateUrlsFromThumbUrl(url: String): Urls {
 //        https://i.pximg.net/c/250x250_80_a2/img-master/img/2021/01/26/20/07/56/87320495_p0_square1200.jpg
 //        val url = "https://i.pximg.net/c/250x250_80_a2/img-master/img/2021/01/26/20/07/56/87320495_p0_square1200.jpg"
-        val pat = Regex("img/(.*)_square1200.jpg")
-        val pat2 = Regex("img/(.*)_master1200.jpg")
+        val pat = Regex("img/(.*)_square1200(.*)")
+        val pat2 = Regex("img/(.*)_master1200(.*)")
         var ret = pat.find(url)
         if (ret == null) {
             ret = pat2.find(url)
         }
         if (ret != null) {
             val str = ret.groupValues[1]
+            val suffix = ret.groupValues[2]
             return Urls(
-                mini = "https://i.pximg.net/c/48x48/img-master/img/${str}_square1200.jpg",
-                thumb = "https://i.pximg.net/c/250x250_80_a2/img-master/img/${str}_square1200.jpg",
-                small = "https://i.pximg.net/c/540x540_70/img-master/img/${str}_master1200.jpg",
-                regular = "https://i.pximg.net/img-master/img/${str}_master1200.jpg",
-                original = "https://i.pximg.net/img-original/img/${str}.jpg",
-                rank = "https://i.pximg.net/c/240x480/img-master/img/${str}_master1200.jpg"
+                mini = "https://i.pximg.net/c/48x48/img-master/img/${str}_square1200$suffix",
+                thumb = "https://i.pximg.net/c/250x250_80_a2/img-master/img/${str}_square1200$suffix",
+                small = "https://i.pximg.net/c/540x540_70/img-master/img/${str}_master1200$suffix",
+                regular = "https://i.pximg.net/img-master/img/${str}_master1200$suffix",
+                original = "https://i.pximg.net/img-original/img/${str}$suffix",
+                rank = "https://i.pximg.net/c/240x480/img-master/img/${str}_master1200$suffix"
             )
         }
         return Urls()
@@ -151,7 +153,7 @@ object Pixiv {
 
     // 获取IllustInfo，自动检查是否缓存
     fun getIllustInfo(pid: String): IllustInfo? {
-        if (File(getIllustFolder(pid, "info.json")).exists()) {
+        if (File(getIllustFolder(pid, "info.json")).exists() && preference.getBoolean("using_saved_illust_info",true)) {
             return getIllustInfoFromLocal(pid)
         }
         try {
@@ -174,21 +176,19 @@ object Pixiv {
         uiHandler: UIHandler,
         progressBarId: Int,
         page: Int = 0,
-        thumbUri: String = ""
+        thumbUrl: String = ""
     ): Boolean {
-
         val picPath = getIllustFolder(pid, "p$page.jpg")
         val picDir = getIllustFolder(pid)
         val tempPath = getIllustFolder(pid, "temp$page.jpg")
         if (File(picPath).exists()) {
-            //println("exists")
             return true
         }
-        val url: String? = if (thumbUri == "") {
+        val url: String? = if (thumbUrl == "") {
             val info = getIllustInfo(pid)
             info?.urls?.original
         } else {
-            generateUrlsFromThumbUrl(thumbUri).original
+            generateUrlsFromThumbUrl(thumbUrl).original
         }
         if (url != null) {
             checkDir(picDir)
@@ -211,90 +211,9 @@ object Pixiv {
                     if (!x) {
                         return false
                     }
-                    //println("/")
                     return true
                 } catch (e: Exception) {
-                    //println(e.message)
-                }
-            }
-        }
-        return false
-    }
-
-    // 通过url下载图片
-    fun getIllustImageByURL(
-        pid: String,
-        url: String,
-        uiHandler: UIHandler,
-        progressBarId: Int,
-        page: Int = 0
-    ): Boolean {
-        val picPath = getIllustFolder(pid, "p$page.jpg")
-        val picDir = getIllustFolder(pid)
-        val tempPath = getIllustFolder(pid, "temp$page.jpg")
-        if (File(picPath).exists()) {
-            println("exists")
-            return true
-        }
-        println("url$url")
-        checkDir(picDir)
-        url.replace("_p0", "_p${page}").let {
-            try {
-                val x = Requests.threadDownload(
-                    it.replace("i.pximg.net", pximg_host),
-                    hashMapOf(
-                        "Host" to "www.pixiv.net",
-                        "Referer" to "https://www.pixiv.net".encode()
-                    ),
-                    picPath,
-                    tempPath,
-                    16,
-                    uiHandler,
-                    progressBarId
-                )
-                if (!x) {
-                    return false
-                }
-                println("/")
-                return true
-            } catch (e: Exception) {
-                println(e.message)
-            }
-        }
-        return false
-    }
-
-    // 多线程下载original图片
-    fun getIllustImageThumb(pid: String): Boolean {
-        val picDir = FileHandler.externalCacheDir().let { FileHandler.join(it, pid) }
-        val picPath = FileHandler.join(picDir, "p0.jpg")
-        if (File(picPath).exists()) {
-            //println("exists")
-            return true
-        }
-        //println("getInfo Start")
-        val info = getIllustInfo(pid)
-        //println("getInfo End")
-        val url = info?.urls?.thumb
-        //println("url$url")
-        if (url != null) {
-            checkDir(picDir)
-//            //println(picPath)
-            url.let {
-                while (true) {
-                    try {
-                        Requests.download(
-                            url.replace("i.pximg.net", pximg_host),
-                            hashMapOf(
-                                "Host" to "www.pixiv.net",
-                                "Referer" to "https://www.pixiv.net".encode()
-                            ),
-                            picPath
-                        )
-                        break
-                    } catch (e: Exception) {
-                        Log.e("getIllustImageThumb", e.message!!)
-                    }
+                    println(e.message)
                 }
             }
         }
@@ -348,7 +267,7 @@ object Pixiv {
         try {
             connection.connectTimeout = 5000
             connection.readTimeout = 5000
-            connection.setRequestProperty("Cookie", cookie)
+            if (preference.getBoolean("use_cookies", false)) connection.setRequestProperty("Cookie", cookie)
             data = connection.inputStream.bufferedReader().readText()
         } catch (e: TimeoutException) {
             handler.toast("Timeout!")

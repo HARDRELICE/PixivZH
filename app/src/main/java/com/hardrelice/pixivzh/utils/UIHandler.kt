@@ -56,7 +56,9 @@ class UIHandler(activity: Activity) : Handler(Looper.getMainLooper()) {
 
     fun setImage(view: ImageView, imgPath: String, ratio: Float) {
         try {
-            if(!File(imgPath).exists()) toast("Failed to Load Image!")
+            if(!File(imgPath).exists()) {
+                return
+            }
             val screenWidth: Int = view.width
             val lp: ViewGroup.LayoutParams = view.layoutParams
             lp.width = screenWidth

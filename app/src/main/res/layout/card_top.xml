@@ -51,6 +51,7 @@
             android:background="@color/white"
             android:layout_below="@id/text_view_rank"
             android:text="rankTitle"
+            android:scrollbars="none"
             android:textStyle="bold"
             android:textColor="#555"
             android:gravity="center_horizontal|top"
@@ -95,6 +96,7 @@
             android:padding="8dp"
             android:gravity="center"
             android:textSize="15sp"
+            android:scrollbars="none"
             android:text="userName" />
 
     </RelativeLayout>
