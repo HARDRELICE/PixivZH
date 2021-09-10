@@ -8,6 +8,5 @@ import java.util.prefs.PreferenceChangeEvent
 
 class HomeAdapter(fm:FragmentManager, private val fragments: ArrayList<Fragment>):FragmentPagerAdapter(fm, FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     override fun getCount(): Int = fragments.size
-
     override fun getItem(position: Int): Fragment = fragments[position]
 }
