@@ -26,4 +26,11 @@
     <string name="retract_more_pics">收起</string>
     <string name="settings">设置</string>
     <string name="saved">已保存</string>
+    <string name="configuration">配置</string>
+    <string name="pixiv_host">Pixiv主站IP</string>
+    <string name="pixiv_host_summary">www.pixiv.net 的 IP</string>
+    <string name="pximg_host">资源服务器IP</string>
+    <string name="pximg_host_summary">i.pximg 的 IP</string>
+    <string name="refresh_host">刷新IP</string>
+    <string name="refresh_host_summary">自动刷新IP地址</string>
 </resources>

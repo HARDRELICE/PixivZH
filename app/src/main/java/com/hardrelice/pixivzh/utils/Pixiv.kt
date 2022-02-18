@@ -141,7 +141,7 @@ object Pixiv {
             val str = jarr.get(j) as JSONObject
             ginfo.tags_.add(str.getString("tag"))
         }
-        //println(ginfo)
+        println(ginfo)
         return ginfo
     }
 
@@ -159,10 +159,10 @@ object Pixiv {
         try {
             //println("???")
             val res =
-                Requests.get("https://$pixiv_host/artworks/$pid", pixiv_headers) ?: return null
+                Requests.get("https://${pixiv_host()}/artworks/$pid", pixiv_headers) ?: return null
             val data = res.getElementById("meta-preload-data")?.attr("content") ?: return null
             saveIllustInfo(pid, data)
-            //println(data)
+            println(data)
             return parseIllustInfo(pid, data)
         } catch (e: Exception) {
             //println(e.message)
@@ -197,11 +197,8 @@ object Pixiv {
             newUrl.let {
                 try {
                     val x = Requests.threadDownload(
-                        it.replace("i.pximg.net", pximg_host),
-                        hashMapOf(
-                            "Host" to "www.pixiv.net",
-                            "Referer" to "https://www.pixiv.net".encode()
-                        ),
+                        it.replace("i.pximg.net", pximg_host()),
+                        pixiv_headers,
                         picPath,
                         tempPath,
                         16,
@@ -221,7 +218,7 @@ object Pixiv {
     }
 
     fun searchTag(tagName:String, lang:String = "zh"): TagInfo?{
-        val url = "https://$pixiv_host/ajax/search/tags/$tagName?lang=$lang"
+        val url = "https://${pixiv_host()}/ajax/search/tags/$tagName?lang=$lang"
         val connection = url.openVerifiedConnection()
         val tagInfo = TagInfo()
         try {
@@ -261,7 +258,7 @@ object Pixiv {
         val type = setting.type
         val lang = setting.lang
         val url =
-            "https://$pixiv_host/ajax/search/$by/$word?word=$word&order=$order&mode=$mode&p=$p&s_mode=$s_mode&ratio=$ratio&type=$type&lang=$lang"
+            "https://${pixiv_host()}/ajax/search/$by/$word?word=$word&order=$order&mode=$mode&p=$p&s_mode=$s_mode&ratio=$ratio&type=$type&lang=$lang"
         val connection = url.openVerifiedConnection()
         val data: String
         try {
@@ -351,7 +348,7 @@ object Pixiv {
         }
         //println(params)
 
-        val url = "https://$pixiv_host/ranking.php?".addParams(params)
+        val url = "https://${pixiv_host()}/ranking.php?".addParams(params)
         val connection = url.openVerifiedConnection()
         val res: String
         try {

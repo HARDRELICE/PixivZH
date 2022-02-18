@@ -58,8 +58,9 @@ class RankAdapter(itemList: List<RankItem>, activity: FragmentActivity) :
         FileHandler.checkDir(baseUri)
         try {
             if (!File(uri).exists()) {
+
                 Requests.download(
-                    thumbUrl.replace("i.pximg.net", pximg_host),
+                    thumbUrl.replace("i.pximg.net", pximg_host()),
                     pixiv_headers,
                     tempUri
                 )

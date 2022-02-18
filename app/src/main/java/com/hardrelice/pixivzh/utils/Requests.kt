@@ -23,7 +23,6 @@ object Requests {
         headers: Map<String, String>,
         params: HashMap<String, Any?> = hashMapOf()
     ): Document? {
-        HttpsUtil.trustEveryone()
         var res: Document? = null
         var url = getUrl
         for (key in params.keys) {
@@ -50,7 +49,6 @@ object Requests {
         headers: Map<String, String>,
         params: HashMap<String, Any?> = hashMapOf()
     ): String? {
-        HttpsUtil.trustEveryone()
         var url = jsonUrl
         for (key in params.keys) {
             Log.e("key", "$key ${params[key]}")
@@ -66,12 +64,12 @@ object Requests {
         return res
     }
 
-    fun call(url: String, headers: Map<String, String>): String {
-        HttpsUtil.trustEveryone()
+    fun call(url: String, properties: Map<String, String>): String {
         val conn = URL(url).openConnection() as HttpsURLConnection
-        conn.setRequestProperty("Referer", "https://www.pixiv.net")
-        conn.setRequestProperty("Host", "www.pixiv.net")
-        conn.setHostnameVerifier { _, session -> true }
+        for (pair in properties) {
+            conn.setRequestProperty(pair.key, pair.value)
+        }
+        conn.setHostnameVerifier { _, _ -> true }
         val content = conn.content
         println(content.toString())
         return content.toString()
@@ -79,23 +77,21 @@ object Requests {
 
     fun download(url: String, properties: Map<String, String>, filePath: String) {
         while (true) {
-            HttpsUtil.trustEveryone()
             val conn = URL(url).openConnection() as HttpsURLConnection
-            for (key in properties) {
-                conn.setRequestProperty(key.toString(), properties[key.toString()].toString())
-            }
-            conn.setRequestProperty("Referer", "https://www.pixiv.net")
-            conn.setHostnameVerifier { _, session -> true }
-            conn.readTimeout = 10000
+            conn.requestMethod = "GET"
             conn.connectTimeout = 10000
+            conn.readTimeout = 10000
+            for (pair in properties) {
+                conn.setRequestProperty(pair.key, pair.value)
+            }
+            conn.setHostnameVerifier { _, _ -> true }
             try {
-                conn.connect()
-                conn.inputStream.use { input ->
-                    BufferedOutputStream(FileOutputStream(filePath)).use { output ->
-                        input.copyTo(output) //将文件复制到本地 其中copyTo使用方法可参考我的Io流笔记
+                conn.inputStream.use {
+                    inputStream -> BufferedOutputStream(FileOutputStream(filePath)).use {
+                        bufferedOutputStream -> inputStream.copyTo(bufferedOutputStream)
                     }
                 }
-                break
+                return
             } catch (e: Exception) {
                 Log.e("download", e.message!!)
             } finally {
@@ -105,15 +101,14 @@ object Requests {
     }
 
     fun mdownload(url: String, properties: HashMap<String, String>, filePath: String) {
-        HttpsUtil.trustEveryone()
         val conn = URL(url).openConnection() as HttpsURLConnection
         var fos: FileOutputStream? = null
         val buffer = ByteArray(1024 * 4)
         var sum: Long = 0
         var len = 0
         val off = 0
-        for (key in properties) {
-            conn.setRequestProperty(key.toString(), properties[key.toString()].toString())
+        for (pair in properties) {
+            conn.setRequestProperty(pair.key, pair.value)
         }
         conn.setHostnameVerifier { _, session -> true }
         try {
@@ -136,7 +131,7 @@ object Requests {
 
     fun threadDownload(
         url: String,
-        properties: HashMap<String, String>,
+        properties: Map<String, String>,
         filePath: String,
         tempPath:String,
         chunkSize_kb: Int = 16,
@@ -144,15 +139,13 @@ object Requests {
         progressBarId: Int = -1
     ): Boolean {
         try {
-            HttpsUtil.trustEveryone()
             var contentLength = -1
             while (contentLength == -1) {
                 val conn = URL(url).openConnection() as HttpsURLConnection
-                for (key in properties) {
-                    conn.setRequestProperty(key.toString(), properties[key.toString()].toString())
+                for (pair in properties) {
+                    conn.setRequestProperty(pair.key, pair.value)
                 }
-                conn.setRequestProperty("Referer", "https://www.pixiv.net")
-                conn.setHostnameVerifier { _, session -> true }
+                conn.setHostnameVerifier { _, _ -> true }
                 conn.connectTimeout = 10000
                 conn.readTimeout = 10000
                 contentLength = conn.contentLength
@@ -236,7 +229,7 @@ object Requests {
         start: Int,
         end: Int,
         filePath: String,
-        properties: HashMap<String, String>,
+        properties: Map<String, String>,
         progress: Progress,
         uiHandler: UIHandler,
         progressBarId: Int
@@ -249,11 +242,10 @@ object Requests {
                 conn.connectTimeout = 10000
                 conn.readTimeout = 10000
                 conn.setRequestProperty("range", "bytes=$start-$end")
-                for (key in properties) {
-                    conn.setRequestProperty(key.toString(), properties[key.toString()].toString())
+                for (pair in properties) {
+                    conn.setRequestProperty(pair.key, pair.value)
                 }
-                conn.setRequestProperty("Referer", "https://www.pixiv.net")
-                conn.setHostnameVerifier { _, session -> true }
+                conn.setHostnameVerifier { _, _ -> true }
                 val raf = RandomAccessFile(filePath, "rws")
                 val inputStream = conn.inputStream
                 raf.seek(start.toLong())

@@ -303,7 +303,7 @@ class ImageDetailAdapter :
                         Log.e("pi", item.profileImg)
                         val tempUri = "$profileUri.temp"
                         Requests.download(
-                            item.profileImg.replace("i.pximg.net", pximg_host),
+                            item.profileImg.replace("i.pximg.net", pximg_host()),
                             pixiv_headers,
                             tempUri
                         )

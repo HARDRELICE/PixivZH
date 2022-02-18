@@ -1,12 +1,14 @@
 package com.hardrelice.pixivzh.ui.main.act
 
 import android.util.Log
+import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import androidx.viewpager.widget.ViewPager
 import com.flyco.tablayout.listener.CustomTabEntity
 import com.flyco.tablayout.listener.OnTabSelectListener
+import com.hardrelice.pixivzh.HttpsUtil
 import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.base.BaseActivity
 import com.hardrelice.pixivzh.mvp.view.BaseFragment
@@ -20,6 +22,11 @@ import com.hardrelice.pixivzh.ui.main.presenter.MainPresenter
 import com.hardrelice.pixivzh.ui.main.view.MainView
 import com.hardrelice.pixivzh.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.runBlocking
+import java.net.Inet4Address
+import java.net.InetAddress
+import java.net.Socket
+import kotlin.concurrent.thread
 
 class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
 
@@ -29,10 +36,28 @@ class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
     override fun getLayoutId(): Int = R.layout.activity_main
 
     override fun init() {
+        HttpsUtil.trustEveryone()
+        HttpsUtil.disableSSLCertificateChecking()
         ApplicationUtil.initial(this)
         screenSize = screenSize()
         handler = UIHandler(this)
         preference = PreferenceManager.getDefaultSharedPreferences(this)
+        if(preference.getString("pixiv_host","").isNullOrEmpty() || preference.getString("pximg_host","").isNullOrEmpty()) {
+            thread {
+                InetAddress.getByName("pixiv.com").hostAddress.orEmpty().also {
+                    preference.edit()
+                        .putString("pixiv_host", it)
+                        .apply()
+                }
+                thread {
+                    InetAddress.getByName("pximg.net").hostAddress.orEmpty().also {
+                        preference.edit()
+                            .putString("pximg_host",it)
+                            .apply()
+                    }
+                }.start()
+            }.start()
+        }
 //        property = Property("pixivzh.config", this)
 
         when {

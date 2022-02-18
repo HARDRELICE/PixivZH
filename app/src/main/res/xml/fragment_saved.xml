@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    >
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:layout="@layout/preference_top" />
+    <PreferenceCategory android:title="@string/configuration">
+        <EditTextPreference
+            android:title="@string/pixiv_host"
+            android:key="pixiv_host"
+            android:summary="@string/pixiv_host_summary"/>
+        <EditTextPreference
+            android:title="@string/pximg_host"
+            android:key="pximg_host"
+            android:summary="@string/pximg_host_summary"/>
+    </PreferenceCategory>
+    <PreferenceScreen
+        android:key="REFRESH_HOST"
+        android:title="@string/refresh_host"
+        android:summary="@string/refresh_host_summary" >
+    </PreferenceScreen>
     <PreferenceCategory android:title="@string/personalization_setting">
         <CheckBoxPreference
             android:title="@string/use_cookies"
@@ -49,4 +63,4 @@
     <!--            android:summary="无"-->
     <!--            />-->
     <!--    </Preference>-->
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>

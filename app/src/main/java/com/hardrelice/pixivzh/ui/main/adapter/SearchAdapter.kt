@@ -52,7 +52,7 @@ class SearchAdapter(itemList: List<SearchItem>, activity: FragmentActivity) :
         try {
             if (!File(uri).exists()) {
                 Requests.download(
-                    thumbUrl.replace("i.pximg.net", pximg_host),
+                    thumbUrl.replace("i.pximg.net", pximg_host()),
                     pixiv_headers,
                     tempUri
                 )

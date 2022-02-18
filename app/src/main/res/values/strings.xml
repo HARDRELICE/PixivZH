@@ -29,5 +29,12 @@
     <string name="retract_more_pics">Retract</string>
     <string name="settings">Settings</string>
     <string name="saved">Saved</string>
+    <string name="configuration">Configuration</string>
+    <string name="pixiv_host">Pixiv Mainpage IP</string>
+    <string name="pixiv_host_summary">The IP of www.pixiv.net</string>
+    <string name="pximg_host">Resource Server IP</string>
+    <string name="pximg_host_summary">The IP of i.pximg.net</string>
+    <string name="refresh_host">Refresh IP</string>
+    <string name="refresh_host_summary">Automatically Refresh IP Address</string>
 
 </resources>

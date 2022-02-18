@@ -1,11 +1,11 @@
 package com.hardrelice.pixivzh
 
+import java.security.KeyManagementException
+import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
-import javax.net.ssl.HttpsURLConnection
-import javax.net.ssl.SSLContext
-import javax.net.ssl.X509TrustManager
+import javax.net.ssl.*
 
 object HttpsUtil {
     /**
@@ -37,7 +37,34 @@ object HttpsUtil {
             }), SecureRandom())
             HttpsURLConnection.setDefaultSSLSocketFactory(context.socketFactory)
         } catch (e: Exception) {
-            // e.printStackTrace();
+            // e.printStackTrace()
+        }
+    }
+    fun disableSSLCertificateChecking() {
+        val trustAllCerts: Array<TrustManager> = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun getAcceptedIssuers(): Array<X509Certificate>? {
+                return null
+            }
+
+            @Throws(CertificateException::class)
+            override fun checkClientTrusted(arg0: Array<X509Certificate>, arg1: String) {
+                // Not implemented
+            }
+
+            @Throws(CertificateException::class)
+            override fun checkServerTrusted(arg0: Array<X509Certificate>, arg1: String) {
+                // Not implemented
+            }
+        })
+        try {
+            val sc = SSLContext.getInstance("TLS")
+            sc.init(null, trustAllCerts, SecureRandom())
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.socketFactory)
+            HttpsURLConnection.setDefaultHostnameVerifier { hostname, session -> true }
+        } catch (e: KeyManagementException) {
+            e.printStackTrace()
+        } catch (e: NoSuchAlgorithmException) {
+            e.printStackTrace()
         }
     }
 }
