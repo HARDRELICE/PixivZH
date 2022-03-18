@@ -94,7 +94,6 @@
             android:id="@+id/search_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#eee"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             tools:listitem="@layout/card_search" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
@@ -103,7 +102,6 @@
         android:id="@+id/before_search_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="#eee"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@id/search_swipe_refresh_layout"
         app:layout_constraintTop_toTopOf="@id/search_swipe_refresh_layout">

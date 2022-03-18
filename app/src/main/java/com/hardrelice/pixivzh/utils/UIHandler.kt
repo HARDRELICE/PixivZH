@@ -100,8 +100,7 @@ class UIHandler(activity: Activity) : Handler(Looper.getMainLooper()) {
 
     override fun handleMessage(msg: Message) {
         super.handleMessage(msg)
-        var uiDetail: UIDetail = msg.obj as UIDetail
-        //println(Thread.currentThread().name)
+        val uiDetail: UIDetail = msg.obj as UIDetail
         when (msg.what) {
             RUN_ANY -> {
                 post {
@@ -141,8 +140,8 @@ class UIHandler(activity: Activity) : Handler(Looper.getMainLooper()) {
                 post {
                     val view = uiDetail.view as RecyclerView
                     val rank = uiDetail.obj as List<RankItem>
-                    var adapter = view.adapter as RankAdapter
-                    adapter!!.addRangeItem(uiDetail.int, rank.size, rank)
+                    val adapter = view.adapter as RankAdapter
+                    adapter.addRangeItem(uiDetail.int, rank.size, rank)
                     view.adapter!!.notifyItemRangeInserted(uiDetail.int, rank.size)
                 }
             }

@@ -42,11 +42,6 @@ class SearchFragment : BaseFragment() {
     override fun setData() {
         if (!saved) {
             saved = true
-            handler.post {
-                val view = search_recycler_view as RecyclerView
-                view.adapter =
-                    SearchAdapter(search, activity as FragmentActivity)
-            }
         }
     }
 
@@ -173,14 +168,18 @@ class SearchFragment : BaseFragment() {
                     root.clear_button.visibility = View.VISIBLE
                 }
                 else -> {
-                    root.clear_button.visibility = View.INVISIBLE
-                    handler.post {
-                        ApplicationUtil.Activity!!.currentFocus?.clearFocus()
-                        val imm =
-                            activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                        imm.hideSoftInputFromWindow(search_view_search_bar.windowToken, 0)
 
-                    }
+                        root.clear_button.visibility = View.INVISIBLE
+                        handler.post {
+                            ApplicationUtil.Activity!!.currentFocus?.clearFocus()
+                            activity?.getSystemService(INPUT_METHOD_SERVICE)?.also {
+                                (it as InputMethodManager).hideSoftInputFromWindow(
+                                    search_view_search_bar.windowToken,
+                                    0
+                                )
+                            }
+                        }
+
                 }
             }
         }
@@ -201,7 +200,7 @@ class SearchFragment : BaseFragment() {
         }
         root.search_view_search_bar.setOnEditorActionListener { v, actionId, event ->
             val value = v.text.toString()
-            return@setOnEditorActionListener if (value.isURLLegal()) {
+            if (value.isURLLegal()) {
                 // do search
                 activity?.currentFocus?.clearFocus()
                 true

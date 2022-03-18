@@ -1,9 +1,14 @@
 package com.hardrelice.pixivzh.ui.main.act
 
 import android.app.Activity
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.ui.main.adapter.ImageDetailAdapter
@@ -11,6 +16,7 @@ import com.hardrelice.pixivzh.ui.main.datatype.DetailItem
 import com.hardrelice.pixivzh.ui.main.datatype.ImageItem
 import com.hardrelice.pixivzh.utils.*
 import kotlinx.android.synthetic.main.activity_image_detail.*
+
 
 class ImageDetailActivity : Activity() {
     private var infoSet: Boolean = false
@@ -21,6 +27,17 @@ class ImageDetailActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_detail)
+
+        val decorView = window.decorView
+        val option = (View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+        decorView.systemUiVisibility = option
+        window.navigationBarColor = Color.TRANSPARENT
+        window.statusBarColor = Color.TRANSPARENT
 
         val picWidth = intent.extras?.getFloat("width") as Float
         val picHeight = intent.extras?.getFloat("height") as Float

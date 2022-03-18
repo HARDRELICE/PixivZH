@@ -1,13 +1,23 @@
 package com.hardrelice.pixivzh.ui.main.act
 
+import android.app.Activity
+import android.graphics.Color
+import android.os.Build
 import android.util.Log
+import android.view.View
+import android.view.WindowManager
 import androidx.core.content.edit
-import androidx.core.view.ViewCompat
+import androidx.core.view.*
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import androidx.preference.PreferenceManager
 import androidx.viewpager.widget.ViewPager
 import com.flyco.tablayout.listener.CustomTabEntity
 import com.flyco.tablayout.listener.OnTabSelectListener
+import com.google.android.material.tabs.TabItem
+import com.google.android.material.tabs.TabLayout
 import com.hardrelice.pixivzh.HttpsUtil
 import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.base.BaseActivity
@@ -32,7 +42,6 @@ class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
 
     private val titleTabs = ArrayList<CustomTabEntity>()
     private val fragments = ArrayList<Fragment>()
-
     override fun getLayoutId(): Int = R.layout.activity_main
 
     override fun init() {
@@ -42,36 +51,37 @@ class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
         screenSize = screenSize()
         handler = UIHandler(this)
         preference = PreferenceManager.getDefaultSharedPreferences(this)
-        if(preference.getString("pixiv_host","").isNullOrEmpty() || preference.getString("pximg_host","").isNullOrEmpty()) {
-            thread {
-                InetAddress.getByName("pixiv.com").hostAddress.orEmpty().also {
-                    preference.edit()
-                        .putString("pixiv_host", it)
-                        .apply()
-                }
-                thread {
-                    InetAddress.getByName("pximg.net").hostAddress.orEmpty().also {
-                        preference.edit()
-                            .putString("pximg_host",it)
-                            .apply()
-                    }
-                }.start()
-            }.start()
-        }
-//        property = Property("pixivzh.config", this)
+//        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
-        when {
-            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R -> {
-                val wic = ViewCompat.getWindowInsetsController(window.decorView)
-                wic?.isAppearanceLightNavigationBars = false
-            }
-            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M -> {
-//                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-            }
-            else -> {
-//                window.statusBarColor = resources.getColor(R.color.white)
-            }
-        }
+//        when {
+//            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+//                ViewCompat.getWindowInsetsController(window.decorView)?.let {
+//                    it.isAppearanceLightNavigationBars = false
+//                    it.hide(WindowInsetsCompat.Type.systemBars())
+//                    it.systemBarsBehavior =
+//                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+//                    it.isAppearanceLightStatusBars = true
+//
+//                }
+//            }
+//            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+////                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+//            }
+//            else -> {
+////                window.statusBarColor = resources.getColor(R.color.white)
+//            }
+//        }
+
+        val decorView = window.decorView
+        val option = (View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+        decorView.systemUiVisibility = option
+        window.navigationBarColor = Color.TRANSPARENT
+        window.statusBarColor = Color.TRANSPARENT
 
         val title = resources.getStringArray(R.array.title)
         val selectIds = resources.obtainTypedArray(R.array.select)
@@ -107,7 +117,7 @@ class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
             override fun onPageSelected(position: Int) {
                 nav_home.currentTab = position
                 if (position!=3) {
-                    val frg = fragments.get(position) as BaseFragment
+                    val frg = fragments[position] as BaseFragment
                     frg.setData()
                 }
             }
@@ -116,6 +126,7 @@ class MainActivity : BaseActivity<MainView, MainPresenter>(), MainView {
             }
 
         })
+
         nav_home.setTabData(titleTabs)
         nav_home.setOnTabSelectListener(object : OnTabSelectListener {
             override fun onTabSelect(position: Int) {

@@ -13,5 +13,7 @@
     <color name="pixiv_blue_variant_dark">#0250C0</color>
     <color name="pixiv_blue_variant_transparent">#663280F0</color>
     <color name="inactive_grey">#505050</color>
+    <color name="dark_nav_color">#333</color>
+    <color name="nav_color">#ddd</color>
     <color name="transparent">#00ffffff</color>
 </resources>

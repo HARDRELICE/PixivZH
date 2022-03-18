@@ -36,5 +36,9 @@
     <string name="pximg_host_summary">The IP of i.pximg.net</string>
     <string name="refresh_host">Refresh IP</string>
     <string name="refresh_host_summary">Automatically Refresh IP Address</string>
+    <string name="home">Home</string>
+    <string name="rank">Ranks</string>
+    <string name="search">Search</string>
+    <string name="follow">Follow</string>
 
 </resources>

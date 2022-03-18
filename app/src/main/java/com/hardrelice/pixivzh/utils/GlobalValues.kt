@@ -54,6 +54,7 @@ fun Activity.screenSize():List<Int>{
 //        val display = this.windowManager.defaultDisplay
 //        listOf(display.width,display.height)
 //    }
+//    return listOf(windowManager.defaultDisplay.width,windowManager.defaultDisplay.height)
     return listOf(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels)
 }
 

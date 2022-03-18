@@ -1,5 +1,7 @@
 package com.hardrelice.pixivzh.ui.main.adapter
 
+import android.app.Dialog
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +12,9 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -20,7 +24,6 @@ import com.hardrelice.pixivzh.R
 import com.hardrelice.pixivzh.ui.main.datatype.DetailItem
 import com.hardrelice.pixivzh.ui.main.datatype.ImageItem
 import com.hardrelice.pixivzh.utils.*
-import com.hardrelice.pixivzh.widget.ImageDialog
 import com.hardrelice.pixivzh.widget.MultiTypeAdapter
 import com.hardrelice.pixivzh.widget.addons.ImageDialogWebViewClient
 import kotlinx.android.synthetic.main.dialog_photo_entry.view.*
@@ -34,7 +37,7 @@ class ImageDetailAdapter :
         registerType(DetailItem::class.java, DetailViewHolder::class.java)
     }
 
-    class ImagesViewHolder(parent: ViewGroup) : BaseViewHolder(
+    class ImagesViewHolder(private val parent: ViewGroup) : BaseViewHolder(
         LayoutInflater.from(parent.context)
             .inflate(R.layout.image_view, parent, false)
     ) {
@@ -101,36 +104,36 @@ class ImageDetailAdapter :
                     it.start()
                 }
             } else {
-                if (!downloadHere){
-                Thread {
-                    while (!File(imgPath).exists()) {
-                        Thread.sleep(1000)
-                    }
-                    handler.post {
-                        if (position == layoutPosition) {
-                            try {
-                                val drawableCrossFadeFactory =
-                                    DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true)
-                                        .build()
-                                Glide.with(handler.activity.applicationContext)
-                                    .asDrawable()
-                                    .skipMemoryCache(true)
-                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                    .load(imgPath)
-                                    .transition(
-                                        DrawableTransitionOptions.with(
-                                            drawableCrossFadeFactory
+                if (!downloadHere) {
+                    Thread {
+                        while (!File(imgPath).exists()) {
+                            Thread.sleep(1000)
+                        }
+                        handler.post {
+                            if (position == layoutPosition) {
+                                try {
+                                    val drawableCrossFadeFactory =
+                                        DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true)
+                                            .build()
+                                    Glide.with(handler.activity.applicationContext)
+                                        .asDrawable()
+                                        .skipMemoryCache(true)
+                                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                        .load(imgPath)
+                                        .transition(
+                                            DrawableTransitionOptions.with(
+                                                drawableCrossFadeFactory
+                                            )
                                         )
-                                    )
-                                    .into(img)
-                                setSCL(img, item.pid, item.page)
-                            } catch (e: Exception) {
-                                println(e.message)
+                                        .into(img)
+                                    setSCL(img, item.pid, item.page)
+                                } catch (e: Exception) {
+                                    println(e.message)
+                                }
                             }
                         }
-                    }
-                }.start()
-            }
+                    }.start()
+                }
             }
         }
 
@@ -138,17 +141,30 @@ class ImageDetailAdapter :
             view.onSingleClick({
                 val inflater = LayoutInflater.from(view.context)
                 val imgEntryView: View =
-                    inflater.inflate(R.layout.dialog_photo_entry, null) // 加载自定义的布局文件
-                val dialog = ImageDialog(getActivity(view)!!, R.style.FullScreenDialog)
+                    inflater.inflate(R.layout.dialog_photo_entry, parent, false) // 加载自定义的布局文件
+                val dialog = Dialog(getActivity(view)!!, R.style.FullScreenDialog)
                 dialog.setContentView(imgEntryView)
-                dialog.window!!.setBackgroundDrawableResource(R.color.black)
-                dialog.window!!.setFlags(
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN
-                )
-                dialog.window!!.decorView.setPadding(0, 0, 0, 0)
-                dialog.window!!.decorView.background = R.color.transparent.toDrawable()
-                dialog.window!!.setLayout(screenSize[0], screenSize[1])
+                dialog.window?.let {
+                    val option = (View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+                    it.decorView.systemUiVisibility = option
+                    it.navigationBarColor = Color.TRANSPARENT
+                    it.statusBarColor = Color.TRANSPARENT
+                }
+//                dialog.window!!.setFlags(
+//                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//                    WindowManager.LayoutParams.FLAG_FULLSCREEN
+//                )
+
+//                dialog.window?.let {
+//                    it.decorView.setPadding(0, 0, 0, 0)
+//                    it.decorView.background = R.color.transparent.toDrawable()
+//                    it.setLayout(screenSize[0], screenSize[1])
+//                }
                 val data = """
             <!DOCTYPE html>
             <html>
@@ -208,6 +224,10 @@ class ImageDetailAdapter :
             </script>
             </html>
             """.trimIndent()
+                dialog.setCanceledOnTouchOutside(true)
+                dialog.setOnCancelListener {
+                    println("Dialog Canceled!")
+                }
                 dialog.show()
                 val img = imgEntryView.large_image
                 img.webViewClient = ImageDialogWebViewClient(img)
@@ -234,13 +254,10 @@ class ImageDetailAdapter :
                         ApplicationUtil.ApplicationContext,
                         ApplicationUtil.ApplicationContext!!.resources.getString(R.string.saved),
                         Toast.LENGTH_SHORT
-                    )
-                        .show()
-                    return@setOnLongClickListener true
+                    ).show()
+                    true
                 }
-                imgEntryView.setOnClickListener {
-                    dialog.cancel()
-                }
+
             })
         }
     }
